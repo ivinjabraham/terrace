@@ -107,7 +107,15 @@ fun HomeScreen(navController: NavController) {
         Column(modifier = Modifier.fillMaxWidth()) {
             TopAppBar(
                 title = {
-                    Text("Starry Sky")
+                    Text("Terrace")
+                },
+                actions = {
+                    // Add score to the right
+                    Text(
+                        text = "Score: 100", // Replace 100 with your dynamic score
+                        color = Color.White,
+                        modifier = Modifier.padding(end = 16.dp) // Add padding to the right
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.hsv(0f, 0f, 0f, 0.2f),  // Transparent background
@@ -115,6 +123,7 @@ fun HomeScreen(navController: NavController) {
                 ),
                 modifier = Modifier.zIndex(1f) // Ensure TopAppBar stays above other content
             )
+
         }
 
         // Starry Sky Content
