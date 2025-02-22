@@ -94,7 +94,7 @@ fun GlowingCommentBox(title: String, description: String) {
                     val paint = Paint().apply {
                         color = Color(0xFFFF66B2) // Pink glow
                         asFrameworkPaint().setMaskFilter(
-                            android.graphics.BlurMaskFilter(40f, android.graphics.BlurMaskFilter.Blur.NORMAL)
+                            android.graphics.BlurMaskFilter(30f, android.graphics.BlurMaskFilter.Blur.NORMAL)
                         )
                     }
                     withTransform({ translate(-10f, -10f) }) {
