@@ -20,6 +20,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
+import androidx.compose.material3.Text
+import com.example.terrace.R
+
+val Philosopher = FontFamily(
+    Font(R.font.philosopher, FontWeight.Normal)
+)
 
 @Composable
 fun LeaderboardComponent(entries: List<LeaderboardEntry>) {
@@ -37,13 +46,14 @@ fun LeaderboardComponent(entries: List<LeaderboardEntry>) {
     ) {
         Text(
             text = "Leaderboards",
+            fontFamily = Philosopher,
             fontWeight = FontWeight.Bold,
-            fontSize = 24.sp,
+            fontSize = 30.sp,
             color = Color.White,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(vertical = 10.dp)
         )
 
         // Scrollable LazyColumn for entries
@@ -63,7 +73,7 @@ fun LeaderboardComponent(entries: List<LeaderboardEntry>) {
 private fun LeaderboardRow(entry: LeaderboardEntry) {
     val rowModifier = Modifier
         .fillMaxWidth()
-        .padding(vertical = 5.dp)
+        .padding(vertical = 6.dp)
 
     if (entry.isCurrentUser) {
         Box(
@@ -88,7 +98,8 @@ private fun LeaderboardRow(entry: LeaderboardEntry) {
                 Text(
                     text = entry.name,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp,
+                    fontFamily = Philosopher,
+                    fontSize = 24.sp,
                     color = Color.White,
                     modifier = Modifier.weight(1f)
                 )
@@ -122,7 +133,8 @@ private fun LeaderboardRow(entry: LeaderboardEntry) {
                 Text(
                     text = entry.name,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp,
+                    fontFamily = Philosopher,
+                    fontSize = 24.sp,
                     color = Color.White,
                     modifier = Modifier.weight(1f)
                 )
