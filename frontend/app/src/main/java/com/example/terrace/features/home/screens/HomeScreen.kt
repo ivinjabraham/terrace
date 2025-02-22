@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -23,6 +24,12 @@ import com.example.terrace.R
 
 import android.util.Log
 
+import androidx.compose.material3.*
+import androidx.compose.ui.zIndex
+
+@OptIn(ExperimentalMaterial3Api::class)
+
+
 @Composable
 fun HomeScreen(navController: NavController) {
     var screenSize by remember { mutableStateOf(IntSize.Zero) }
@@ -31,8 +38,14 @@ fun HomeScreen(navController: NavController) {
     val clusterCount = 10
 
     var transformState by remember {
-        mutableStateOf(TransformState(offsetX = 0f))
+        mutableStateOf(TransformState(
+            offsetX = 0f,
+            scale = 1f
+        ))
     }
+
+    val minScale = 1.0f
+    val maxScale = 1.8f
 
     val starPositions = remember(screenSize) {
         mutableStateListOf<StarData>().apply {
@@ -84,103 +97,145 @@ fun HomeScreen(navController: NavController) {
     val draggableState = rememberDraggableState { delta ->
         transformState = transformState.copy(
             offsetX = (transformState.offsetX + delta)
-                .coerceIn(minOffset, maxOffset)
+                .coerceIn(minOffset * transformState.scale, maxOffset * transformState.scale)
         )
         Log.d("HomeScreen", "Dragging: offsetX = ${transformState.offsetX}")
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .onGloballyPositioned { coordinates ->
-                screenSize = IntSize(coordinates.size.width, coordinates.size.height)
-                Log.d("HomeScreen", "Screen Size: $screenSize")
-            }
-            .draggable(state = draggableState, orientation = Orientation.Horizontal)
-    ) {
-        // Background gradients
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            drawRect(
-                brush = Brush.radialGradient(
-                    colors = listOf(Color(0x0CA506EF), Color(0x1E000000), Color.Black),
-                    center = Offset(
-                        x = (transformState.offsetX - size.width)
-                            .coerceIn(-size.width.toFloat(), size.width.toFloat()),
-                        y = size.height
-                    ),
-                    radius = size.minDimension * 5f
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Transparent Top Bar
+        Column(modifier = Modifier.fillMaxWidth()) {
+            TopAppBar(
+                title = {
+                    Text("Starry Sky")
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.hsv(0f, 0f, 0f, 0.2f),  // Transparent background
+                    titleContentColor = Color.White // Title color
                 ),
-                size = size
-            )
-
-            drawRect(
-                brush = Brush.radialGradient(
-                    colors = listOf(Color(0x1DFF0000), Color(0x1E050001), Color.Black),
-                    center = Offset(
-                        x = (size.width * 2 + transformState.offsetX)
-                            .coerceIn(-size.width.toFloat(), size.width.toFloat() * 2),
-                        y = 0f
-                    ),
-                    radius = size.minDimension * 5f
-                ),
-                size = size
+                modifier = Modifier.zIndex(1f) // Ensure TopAppBar stays above other content
             )
         }
 
-        // Star layer
+        // Starry Sky Content
         Box(
             modifier = Modifier
-                .width(with(density) { (maxStarX - minStarX + screenSize.width).toDp() })
-                .fillMaxHeight()
-                .graphicsLayer {
-                    translationX = transformState.offsetX
+                .fillMaxSize()
+                .padding(top = 56.dp) // Adjust padding to prevent overlap with TopAppBar
+                .onGloballyPositioned { coordinates ->
+                    screenSize = IntSize(coordinates.size.width, coordinates.size.height)
+                    Log.d("HomeScreen", "Screen Size: $screenSize")
                 }
-        ) {
-            starPositions.forEach { star ->
-                val starImage: Painter = painterResource(id = star.drawableRes)
+                .pointerInput(Unit) {
+                    detectTransformGestures { centroid, pan, zoom, _ ->
+                        val oldScale = transformState.scale
+                        val newScale = (oldScale * zoom).coerceIn(minScale, maxScale)
 
-                val twinkleAlpha by animateFloatAsState(
-                    targetValue = if (Random.nextFloat() < 0.5f) 0.5f else 1f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(star.twinkleSpeed, easing = LinearEasing),
-                        repeatMode = RepeatMode.Reverse
-                    )
+                        val contentPoint = (centroid - Offset(transformState.offsetX, 0f)) / oldScale
+                        val deltaContentPoint = contentPoint * (newScale - oldScale)
+
+                        val newOffsetX = (transformState.offsetX - deltaContentPoint.x + pan.x)
+                            .coerceIn(minOffset * newScale, maxOffset * newScale)
+
+                        Log.d("HomeScreen", "New OffsetX: $newOffsetX, Previous OffsetX: ${transformState.offsetX}, Scale: $newScale")
+
+                        transformState = transformState.copy(
+                            scale = newScale,
+                            offsetX = newOffsetX
+                        )
+
+                        Log.d("HomeScreen", "Updated Transform: offsetX = $newOffsetX, scale = $newScale")
+                    }
+                }
+
+                .draggable(state = draggableState, orientation = Orientation.Horizontal)
+        ) {
+            // Background gradients (Starry Sky)
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                drawRect(
+                    brush = Brush.radialGradient(
+                        colors = listOf(Color(0x0CA506EF), Color(0x1E000000), Color.Black),
+                        center = Offset(
+                            x = (transformState.offsetX - size.width)
+                                .coerceIn(-size.width.toFloat(), size.width.toFloat()),
+                            y = size.height
+                        ),
+                        radius = size.minDimension * 5f
+                    ),
+                    size = size
                 )
 
-                Box(
-                    modifier = Modifier
-                        .offset(
-                            with(density) { star.position.x.toDp() },
-                            with(density) { star.position.y.toDp() }
+                drawRect(
+                    brush = Brush.radialGradient(
+                        colors = listOf(Color(0x1DFF0000), Color(0x1E050001), Color.Black),
+                        center = Offset(
+                            x = (size.width * 2 + transformState.offsetX)
+                                .coerceIn(-size.width.toFloat(), size.width.toFloat() * 2),
+                            y = 0f
+                        ),
+                        radius = size.minDimension * 5f
+                    ),
+                    size = size
+                )
+            }
+
+            // Star layer
+            Box(
+                modifier = Modifier
+                    .width(with(density) { (maxStarX - minStarX + screenSize.width).toDp() })
+                    .fillMaxHeight()
+                    .graphicsLayer {
+                        scaleX = transformState.scale
+                        scaleY = transformState.scale
+                        translationX = transformState.offsetX
+                    }
+            ) {
+                starPositions.forEach { star ->
+                    val starImage: Painter = painterResource(id = star.drawableRes)
+
+                    val twinkleAlpha by animateFloatAsState(
+                        targetValue = if (Random.nextFloat() < 0.5f) 0.5f else 1f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(star.twinkleSpeed, easing = LinearEasing),
+                            repeatMode = RepeatMode.Reverse
                         )
-                        .size(star.size)
-                ) {
-                    Image(
-                        painter = starImage,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(star.size)
-                            .graphicsLayer {
-                                rotationZ = star.rotation
-                                alpha = twinkleAlpha * 0.6f
-                                shadowElevation = 15f
-                                scaleX = 1.3f
-                                scaleY = 1.3f
-                            },
-                        contentScale = ContentScale.Fit
                     )
 
-                    Image(
-                        painter = starImage,
-                        contentDescription = "Twinkling Star",
+                    Box(
                         modifier = Modifier
+                            .offset(
+                                with(density) { star.position.x.toDp() },
+                                with(density) { star.position.y.toDp() }
+                            )
                             .size(star.size)
-                            .graphicsLayer {
-                                rotationZ = star.rotation
-                                alpha = twinkleAlpha
-                            },
-                        contentScale = ContentScale.Fit
-                    )
+                    ) {
+                        Image(
+                            painter = starImage,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(star.size)
+                                .graphicsLayer {
+                                    rotationZ = star.rotation
+                                    alpha = twinkleAlpha * 0.6f
+                                    shadowElevation = 15f
+                                    scaleX = 1.3f
+                                    scaleY = 1.3f
+                                },
+                            contentScale = ContentScale.Fit
+                        )
+
+                        Image(
+                            painter = starImage,
+                            contentDescription = "Twinkling Star",
+                            modifier = Modifier
+                                .size(star.size)
+                                .graphicsLayer {
+                                    rotationZ = star.rotation
+                                    alpha = twinkleAlpha
+                                },
+                            contentScale = ContentScale.Fit
+                        )
+                    }
                 }
             }
         }
@@ -206,5 +261,6 @@ data class StarData(
 )
 
 private data class TransformState(
-    val offsetX: Float
+    val offsetX: Float,
+    val scale: Float
 )
