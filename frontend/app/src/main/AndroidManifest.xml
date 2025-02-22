@@ -2,8 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.terrace">
-
     <application
+        android:name=".TerraceApp"
+        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -23,5 +24,6 @@
         </activity>
 
     </application>
+    <uses-permission android:name="android.permission.INTERNET"/>
 
 </manifest>

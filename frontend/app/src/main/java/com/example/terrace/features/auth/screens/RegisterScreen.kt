@@ -1,6 +1,12 @@
 package com.example.terrace.features.auth.screens
 
-import android.util.Log
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import androidx.compose.material.*
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -11,8 +17,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
-import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -20,23 +24,19 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import com.example.terrace.features.auth.viewmodel.LoginViewModel
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.runtime.remember
+import com.example.terrace.features.auth.viewmodel.RegisterViewModel
 
 @Composable
-fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = hiltViewModel()) {
+fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewModel = hiltViewModel()) {
     val username by viewModel.username.collectAsState()
     val password by viewModel.password.collectAsState()
-    val loginState by viewModel.loginState.collectAsState()
+    val confirmPassword by viewModel.confirmPassword.collectAsState()
+    val registerState by viewModel.registerState.collectAsState()
 
-    LaunchedEffect(loginState) {
-        if (loginState.isSuccess) {
-            navController.navigate("home") {
-                popUpTo("login") { inclusive = true }
+    LaunchedEffect(registerState) {
+        if (registerState.isSuccess) {
+            navController.navigate("login") {
+                popUpTo("register") { inclusive = true }
             }
         }
     }
@@ -55,13 +55,13 @@ fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = hi
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Welcome Back",
+                text = "Create Account",
                 style = MaterialTheme.typography.h4,
                 fontWeight = FontWeight.Bold
             )
             
             Text(
-                text = "Sign in to continue",
+                text = "Sign up to get started",
                 style = MaterialTheme.typography.subtitle1,
                 color = MaterialTheme.colors.onBackground.copy(alpha = 0.6f)
             )
@@ -70,16 +70,16 @@ fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = hi
 
             OutlinedTextField(
                 value = username,
-                onValueChange = { viewModel.updateEmail(it) },
-                label = { Text("Email") },
+                onValueChange = { viewModel.updateUsername(it) },
+                label = { Text("Username") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !loginState.isLoading,
+                enabled = !registerState.isLoading,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next
                 ),
-                isError = loginState.error != null
+                isError = registerState.error != null
             )
 
             OutlinedTextField(
@@ -88,25 +88,40 @@ fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = hi
                 label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !loginState.isLoading,
+                enabled = !registerState.isLoading,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Next
+                ),
+                isError = registerState.error != null
+            )
+
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { viewModel.updateConfirmPassword(it) },
+                label = { Text("Confirm Password") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !registerState.isLoading,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = { viewModel.login() }
+                    onDone = { viewModel.register() }
                 ),
-                isError = loginState.error != null
+                isError = registerState.error != null
             )
 
             AnimatedVisibility(
-                visible = loginState.error != null,
+                visible = registerState.error != null,
                 enter = fadeIn() + expandVertically(),
                 exit = fadeOut() + shrinkVertically()
             ) {
                 Text(
-                    text = loginState.error ?: "",
+                    text = registerState.error ?: "",
                     color = MaterialTheme.colors.error,
                     style = MaterialTheme.typography.caption,
                     modifier = Modifier.fillMaxWidth()
@@ -116,21 +131,18 @@ fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = hi
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = {
-                    viewModel.login()
-                },
+                onClick = { viewModel.register() },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
-                    .clickable(
-                        enabled = !loginState.isLoading && username.isNotBlank() && password.isNotBlank(),
-                        onClick = { viewModel.login() }
-                    ),
-                enabled = !loginState.isLoading && username.isNotBlank() && password.isNotBlank(),
-                shape = RoundedCornerShape(8.dp),
-                interactionSource = remember { MutableInteractionSource() }
+                    .height(50.dp),
+                enabled = !registerState.isLoading && 
+                         username.isNotBlank() && 
+                         password.isNotBlank() && 
+                         confirmPassword.isNotBlank() &&
+                         password == confirmPassword,
+                shape = RoundedCornerShape(8.dp)
             ) {
-                if (loginState.isLoading) {
+                if (registerState.isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
                         color = MaterialTheme.colors.onPrimary,
@@ -138,17 +150,17 @@ fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = hi
                     )
                 } else {
                     Text(
-                        "Sign In",
+                        "Sign Up",
                         style = MaterialTheme.typography.button
                     )
                 }
             }
 
             TextButton(
-                onClick = { navController.navigate("register") },
+                onClick = { navController.navigate("login") },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Don't have an account? Sign Up")
+                Text("Already have an account? Sign In")
             }
         }
     }
