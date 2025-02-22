@@ -70,7 +70,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.5")
     implementation("androidx.compose.material3:material3:1.2.0")
     implementation("io.coil-kt:coil-compose:2.2.2")
-
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.31.1-alpha")
 
     implementation("com.google.dagger:hilt-android:2.51.1")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")

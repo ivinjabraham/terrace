@@ -4,7 +4,7 @@ import StarData
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.*
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -33,8 +33,10 @@ import androidx.compose.foundation.background
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-
 import com.example.terrace.features.global.layout.screen.LayoutComponent
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.statusBarsPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,13 +44,13 @@ fun HomeScreen(navController: NavController) {
     var screenSize by remember { mutableStateOf(IntSize.Zero) }
     val density = LocalDensity.current
 
-
     val starCount = 100
     val clusterCount = 10
 
     var offsetX by remember { mutableFloatStateOf(0f) }
-    var direction by remember { mutableStateOf(1f) } //
+    var direction by remember { mutableStateOf(1f) }
     // Auto-scroll effect
+
     LaunchedEffect(Unit) {
         while (true) {
             withFrameNanos {
@@ -59,7 +61,6 @@ fun HomeScreen(navController: NavController) {
             }
         }
     }
-
 
     val starPositions = remember(screenSize) {
         mutableStateListOf<StarData>().apply {
@@ -87,8 +88,10 @@ fun HomeScreen(navController: NavController) {
                     repeat(clusterSize) {
                         val angle = Random.nextFloat() * 360f
                         val distance = Random.nextInt(90, 200).toFloat()
-                        val coffsetX = (clusterCenter.x + distance * kotlin.math.cos(angle)).coerceIn(-screenSize.width.toFloat(), screenSize.width.toFloat() * 2)
-                        val coffsetY = (clusterCenter.y + distance * kotlin.math.sin(angle)).coerceIn(0f, screenSize.height.toFloat())
+                        val coffsetX = (clusterCenter.x + distance * kotlin.math.cos(angle))
+                            .coerceIn(-screenSize.width.toFloat(), screenSize.width.toFloat() * 2)
+                        val coffsetY = (clusterCenter.y + distance * kotlin.math.sin(angle))
+                            .coerceIn(0f, screenSize.height.toFloat())
                         add(
                             StarData(
                                 position = Offset(coffsetX, coffsetY),
@@ -119,14 +122,14 @@ fun HomeScreen(navController: NavController) {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Transparent Top Bar
+        // Transparent Top Bar with status bar padding
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Transparent)
-                .padding(WindowInsets.ime.asPaddingValues())
+                .statusBarsPadding()
                 .zIndex(1f),
-            horizontalAlignment = Alignment.CenterHorizontally // Centers all children horizontally
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TopAppBar(
                 title = { Text("Terrace") },
@@ -137,11 +140,11 @@ fun HomeScreen(navController: NavController) {
             )
             LayoutComponent(viewModel = viewModel(), navController = navController)
         }
-        // Starry Sky Content
+        // Starry Sky Content – padded so the gradient doesn't extend into the status bar area
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 56.dp) // Adjust padding to prevent overlap with TopAppBar
+                .padding(WindowInsets.statusBars.asPaddingValues())
                 .onGloballyPositioned { coordinates ->
                     screenSize = IntSize(coordinates.size.width, coordinates.size.height)
                     Log.d("HomeScreen", "Screen Size: $screenSize")
@@ -190,40 +193,41 @@ fun HomeScreen(navController: NavController) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .offset { IntOffset((offsetX * 0.5).toInt(), 0) } // Slower movement
+                        .offset { IntOffset((offsetX * 0.5).toInt(), 0) }
                 ) {
-                    starPositions.filter { it.sizeCategory == StarSizeCategory.SMALL }.forEach { star ->
-                        RenderStar(star, density, twinkleAlpha = Random.nextFloat())
-                    }
+                    starPositions.filter { it.sizeCategory == StarSizeCategory.SMALL }
+                        .forEach { star ->
+                            RenderStar(star, density, twinkleAlpha = Random.nextFloat())
+                        }
                 }
 
                 // Medium Stars
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .offset { IntOffset((offsetX * 0.7).toInt(), 0) } // Moderate movement
+                        .offset { IntOffset((offsetX * 0.7).toInt(), 0) }
                 ) {
-                    starPositions.filter { it.sizeCategory == StarSizeCategory.MEDIUM }.forEach { star ->
-                        RenderStar(star, density, twinkleAlpha = Random.nextFloat())
-                    }
+                    starPositions.filter { it.sizeCategory == StarSizeCategory.MEDIUM }
+                        .forEach { star ->
+                            RenderStar(star, density, twinkleAlpha = Random.nextFloat())
+                        }
                 }
 
                 // Large Stars
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .offset { IntOffset((offsetX * 0.9).toInt(), 0) } // Fastest movement
+                        .offset { IntOffset((offsetX * 0.9).toInt(), 0) }
                 ) {
-                    starPositions.filter { it.sizeCategory == StarSizeCategory.LARGE }.forEach { star ->
-                        RenderStar(star, density, twinkleAlpha = Random.nextFloat())
-                    }
+                    starPositions.filter { it.sizeCategory == StarSizeCategory.LARGE }
+                        .forEach { star ->
+                            RenderStar(star, density, twinkleAlpha = Random.nextFloat())
+                        }
                 }
             }
         }
     }
 }
-
-
 
 fun getRandomPosition(screenSize: IntSize): Offset {
     if (screenSize.width < 100 || screenSize.height < 100) return Offset.Zero
@@ -233,7 +237,8 @@ fun getRandomPosition(screenSize: IntSize): Offset {
     )
 }
 
-fun Offset.distanceTo(other: Offset) = sqrt((x - other.x) * (x - other.x) + (y - other.y) * (y - other.y))
+fun Offset.distanceTo(other: Offset) =
+    sqrt((x - other.x) * (x - other.x) + (y - other.y) * (y - other.y))
 
 // Classification based on size
 enum class StarSizeCategory {
