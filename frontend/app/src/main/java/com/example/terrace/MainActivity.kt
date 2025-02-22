@@ -24,10 +24,7 @@ class MainActivity : ComponentActivity() {
         window.navigationBarColor = Color.TRANSPARENT
         setContent {
             val navController = rememberNavController()
-            NavHost(navController, startDestination = "login") {
-                composable("login") { LoginScreen(navController) }
-                composable("home") { HomeScreen(navController) }
-            }
+            NavigationGraph(navController = navController)
         }
     }
 }

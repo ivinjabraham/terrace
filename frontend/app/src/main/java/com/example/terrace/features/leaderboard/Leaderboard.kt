@@ -20,10 +20,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Text
+import androidx.navigation.NavController
+
 import com.example.terrace.R
 
 val Philosopher = FontFamily(
@@ -31,7 +30,7 @@ val Philosopher = FontFamily(
 )
 
 @Composable
-fun LeaderboardComponent(entries: List<LeaderboardEntry>) {
+fun LeaderboardScreen(entries: List<LeaderboardEntry>, navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
