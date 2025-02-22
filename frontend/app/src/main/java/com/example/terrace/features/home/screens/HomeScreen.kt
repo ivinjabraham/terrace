@@ -6,18 +6,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import androidx.compose.ui.viewinterop.AndroidView
+import com.example.terrace.BackgroundComponent
 import com.example.terrace.core.navigation.Screen
 import com.example.terrace.core.navigation.safeNavigate
 
 @Composable
 fun HomeScreen(navController: NavController) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text("Home")
-    }
+    AndroidView(
+        factory = { context -> BackgroundComponent(context) },
+        modifier = Modifier.fillMaxSize()
+    )
 }
 
 
