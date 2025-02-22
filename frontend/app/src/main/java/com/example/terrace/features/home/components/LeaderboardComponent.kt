@@ -6,64 +6,54 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 
-/**
- * LeaderboardComponent as a class
- */
-class LeaderboardComponent(
-    private val weeklyEntries: List<LeaderboardEntry>,
-    private val monthlyEntries: List<LeaderboardEntry>,
-    private val allTimeEntries: List<LeaderboardEntry>
-) {
-    @Composable
-    fun Display() {
-        val tabs = listOf("Weekly", "Monthly", "All Time")
-        var selectedTabIndex by remember { mutableStateOf(0) }
-
-        Column(modifier = Modifier.fillMaxSize()) {
-            // Top Tab Row
-            TabRow(
-                selectedTabIndex = selectedTabIndex,
-                backgroundColor = Color(0xFF1B1B2F),
-                contentColor = Color.White
-            ) {
-                tabs.forEachIndexed { index, text ->
-                    Tab(
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
-                        text = { Text(text = text, fontWeight = FontWeight.SemiBold) }
-                    )
-                }
+@Composable
+fun LeaderboardComponent(entries: List<LeaderboardEntry>) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF111121)) // Background color
+            .graphicsLayer(alpha = 0.7f) // Slight transparency
+            .drawBehind {
+                drawRect(
+                    color = Color.Black.copy(alpha = 0.2f) // Semi-transparent overlay for blur effect
+                )
             }
+            .padding(top = 36.dp)
+    ) {
+        Text(
+            text = "Leaderboards",
+            fontWeight = FontWeight.Bold,
+            fontSize = 24.sp,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        )
 
-            // Decide which list of entries to display
-            val currentEntries = when (selectedTabIndex) {
-                0 -> weeklyEntries
-                1 -> monthlyEntries
-                else -> allTimeEntries
-            }
-
-            // Leaderboard List
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0xFF111121))
-                    .padding(16.dp)
-            ) {
-                items(currentEntries) { entry ->
-                    LeaderboardRow(entry)
-                }
+        // Scrollable LazyColumn for entries
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp)
+        ) {
+            items(entries) { entry ->
+                LeaderboardRow(entry)
             }
         }
     }
@@ -73,7 +63,7 @@ class LeaderboardComponent(
 private fun LeaderboardRow(entry: LeaderboardEntry) {
     val rowModifier = Modifier
         .fillMaxWidth()
-        .padding(vertical = 4.dp)
+        .padding(vertical = 5.dp)
 
     if (entry.isCurrentUser) {
         Box(
@@ -94,7 +84,6 @@ private fun LeaderboardRow(entry: LeaderboardEntry) {
                     color = Color.White,
                     modifier = Modifier.width(32.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = entry.name,
@@ -129,7 +118,6 @@ private fun LeaderboardRow(entry: LeaderboardEntry) {
                     color = Color.White,
                     modifier = Modifier.width(32.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = entry.name,
