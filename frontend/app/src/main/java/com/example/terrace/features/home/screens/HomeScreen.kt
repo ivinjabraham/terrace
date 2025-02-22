@@ -35,9 +35,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.terrace.features.home.components.BigDipper
 
-import com.example.terrace.features.home.components.LayoutComponent
+
 import com.example.terrace.features.home.components.LittleDipper
 import com.example.terrace.features.home.components.Orion
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -1,4 +1,4 @@
-package com.example.terrace.features.home.components
+package com.example.terrace.features.leaderboard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
