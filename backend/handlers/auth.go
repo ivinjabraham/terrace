@@ -1,18 +1,20 @@
-package main
+package handlers
 
 import (
+    "context"
     "errors"
     "time"
-	"context"
 
     "github.com/golang-jwt/jwt/v5"
     "go.mongodb.org/mongo-driver/bson"
     "go.mongodb.org/mongo-driver/bson/primitive"
+    "go.mongodb.org/mongo-driver/mongo"
     "golang.org/x/crypto/bcrypt"
-	"go.mongodb.org/mongo-driver/mongo"
+    "backend/config"
+    "backend/models"
 )
 
-var jwtSecret = []byte(jwtsecret)
+var jwtSecret = config.JWT_SECRET
 
 type Claims struct {
     Username string `json:"username"`
@@ -43,7 +45,7 @@ func generateToken(username string) (string, error) {
 
 func RegisterUser(ctx context.Context, collection *mongo.Collection, username, password string) error {
     filter := bson.M{"username": username}
-    var existingUser User
+    var existingUser models.User
 
     err := collection.FindOne(ctx, filter).Decode(&existingUser)
     if err == nil {
@@ -55,7 +57,7 @@ func RegisterUser(ctx context.Context, collection *mongo.Collection, username, p
         return err
     }
 
-    user := User{
+    user := models.User{
         UserID:     primitive.NewObjectID(),
         CreatedAt:  time.Now(),
         Username:   username,
@@ -66,30 +68,30 @@ func RegisterUser(ctx context.Context, collection *mongo.Collection, username, p
     return err
 }
 
-func loginUser(username, password string) (string, error) {
-    var user User
+func LoginUser(ctx context.Context, collection *mongo.Collection, username, password string) (string, error) {
+    var user models.User
     filter := bson.M{"username": username}
 
     err := collection.FindOne(ctx, filter).Decode(&user)
     if err != nil {
-        return "", errors.New("user not found")
+        return "", errors.New("User not found")
     }
 
     if !checkPassword(user.HashedPass, password) {
-        return "", errors.New("incorrect password")
+        return "", errors.New("Incorrect password")
     }
 
     return generateToken(username)
 }
 
-func validateToken(tokenString string) (*Claims, error) {
+func ValidateToken(tokenString string) (*Claims, error) {
     claims := &Claims{}
     token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
         return jwtSecret, nil
     })
 
     if err != nil || !token.Valid {
-        return nil, errors.New("invalid token")
+        return nil, errors.New("Invalid token")
     }
 
     return claims, nil

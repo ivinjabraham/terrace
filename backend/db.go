@@ -5,13 +5,14 @@ import (
     "log"
     "go.mongodb.org/mongo-driver/mongo"
     "go.mongodb.org/mongo-driver/mongo/options"
+    "backend/config"
 )
 
 var collection *mongo.Collection
 var ctx = context.TODO()
 
 func initDB() {
-    clientOptions := options.Client().ApplyURI(connectionstring)
+    clientOptions := options.Client().ApplyURI(config.DB_URI)
     client, err := mongo.Connect(ctx, clientOptions)
     if err != nil {
         log.Fatal(err)
