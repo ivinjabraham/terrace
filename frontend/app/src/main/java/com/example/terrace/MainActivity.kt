@@ -4,10 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import com.example.terrace.features.auth.screens.HomeScreen
-import com.example.terrace.features.auth.screens.LoginScreen
+import com.example.terrace.core.navigation.NavigationGraph
+
 
 
 class MainActivity : ComponentActivity() {
@@ -15,10 +13,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
-            NavHost(navController, startDestination = "login") {
-                composable("login") { LoginScreen(navController) }
-                composable("home") { HomeScreen(navController) }
-            }
+            NavigationGraph(navController)
         }
     }
 }
