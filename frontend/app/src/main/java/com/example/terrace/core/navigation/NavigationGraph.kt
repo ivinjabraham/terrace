@@ -5,7 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.terrace.features.auth.screens.LoginScreen
-import com.example.terrace.features.auth.screens.HomeScreen // ✅ Import HomeScreen
+import com.example.terrace.features.auth.screens.HomeScreen
 
 // Define all screens
 sealed class Screen(val route: String) {
@@ -15,8 +15,8 @@ sealed class Screen(val route: String) {
 
 @Composable
 fun NavigationGraph(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = Screen.Login.route) { // ✅ Ensure correct startDestination
+    NavHost(navController = navController, startDestination = Screen.Login.route) {
         composable(Screen.Login.route) { LoginScreen(navController) }
-        composable(Screen.Home.route) { HomeScreen(navController) } // ✅ Add HomeScreen
+        composable(Screen.Home.route) { HomeScreen(navController) }
     }
 }
