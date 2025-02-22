@@ -40,10 +40,8 @@ class LoginViewModel @Inject constructor(private val authRepository: AuthReposit
     }
 
     fun login() {
-        android.util.Log.d("LoginViewModel", "Login function called")
         viewModelScope.launch {
             try {
-                Log.d("LoginViewModel", "Attempting network call...")
                 _loginState.value = LoginState(isLoading = true)
                 val response = authRepository.login(_username.value, _password.value)
                 
@@ -52,8 +50,7 @@ class LoginViewModel @Inject constructor(private val authRepository: AuthReposit
                     // Store token if needed
                     _loginState.value = LoginState(isSuccess = true)
                 } else {
-                    _loginState.value = LoginState(error = "Login failed: ${response}")
-                    Log.d("LoginViewModel", "${response}")
+                    _loginState.value = LoginState(error = "Login failed: ${response.message()}")
                 }
             } catch (e: HttpException) {
                 _loginState.value = LoginState(error = "Network error: ${e.message}")

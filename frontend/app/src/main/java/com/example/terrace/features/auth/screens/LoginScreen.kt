@@ -117,7 +117,6 @@ fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = hi
 
             Button(
                 onClick = {
-                    Log.d("LoginScreen", "Login button clicked")
                     viewModel.login()
                 },
                 modifier = Modifier
