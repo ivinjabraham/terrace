@@ -1,11 +1,21 @@
 package main
 
 import (
-	"time"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+    "errors"
+    "time"
+
+    "github.com/golang-jwt/jwt/v5"
     "go.mongodb.org/mongo-driver/bson"
+    "go.mongodb.org/mongo-driver/bson/primitive"
     "golang.org/x/crypto/bcrypt"
 )
+
+var jwtSecret = []byte(jwtsecret)
+
+type Claims struct {
+    Username string `json:"username"`
+    jwt.RegisteredClaims
+}
 
 func hashPassword(password string) (string, error) {
     hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -14,6 +24,19 @@ func hashPassword(password string) (string, error) {
 
 func checkPassword(hash, password string) bool {
     return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)) == nil
+}
+
+func generateToken(username string) (string, error) {
+    expirationTime := time.Now().Add(24 * time.Hour)
+    claims := &Claims{
+        Username: username,
+        RegisteredClaims: jwt.RegisteredClaims{
+            ExpiresAt: jwt.NewNumericDate(expirationTime),
+        },
+    }
+
+    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+    return token.SignedString(jwtSecret)
 }
 
 func registerUser(username, password string) error {
@@ -33,13 +56,31 @@ func registerUser(username, password string) error {
     return err
 }
 
-func loginUser(username, password string) bool {
+func loginUser(username, password string) (string, error) {
     var user User
-    filter := bson.M{"username": username} 
+    filter := bson.M{"username": username}
+
     err := collection.FindOne(ctx, filter).Decode(&user)
     if err != nil {
-        return false
+        return "", errors.New("user not found")
     }
 
-    return checkPassword(user.HashedPass, password)
+    if !checkPassword(user.HashedPass, password) {
+        return "", errors.New("incorrect password")
+    }
+
+    return generateToken(username)
+}
+
+func validateToken(tokenString string) (*Claims, error) {
+    claims := &Claims{}
+    token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+        return jwtSecret, nil
+    })
+
+    if err != nil || !token.Valid {
+        return nil, errors.New("invalid token")
+    }
+
+    return claims, nil
 }

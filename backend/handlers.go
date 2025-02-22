@@ -4,6 +4,7 @@ import (
     "encoding/json"
     "fmt"
     "net/http"
+    "strings"
 )
 
 func registerHandler(w http.ResponseWriter, r *http.Request) {
@@ -47,14 +48,31 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    if loginUser(creds.Username, creds.Password) {
-        w.WriteHeader(http.StatusOK)
-        fmt.Fprintln(w, "Logged in.")
-    } else {
+    token, err := loginUser(creds.Username, creds.Password)
+    if err != nil {
         http.Error(w, "Incorrect username/password", http.StatusUnauthorized)
+        return
     }
+
+    json.NewEncoder(w).Encode(map[string]string{"token": token})
 }
 
-func helloWorld(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintln(w, "Hello, World!")
+func jwtMiddleware(next http.HandlerFunc) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        authHeader := r.Header.Get("Authorisation")
+        if authHeader == "" {
+            http.Error(w, "Missing token", http.StatusUnauthorized)
+            return
+        }
+
+        tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+        claims, err := validateToken(tokenString)
+        if err != nil {
+            http.Error(w, "Invalid token", http.StatusUnauthorized)
+            return
+        }
+
+        r.Header.Set("X-Username", claims.Username)
+        next.ServeHTTP(w, r)
+    }
 }
