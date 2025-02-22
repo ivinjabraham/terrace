@@ -5,9 +5,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import com.example.terrace.features.auth.screens.LoginScreen
 import com.example.terrace.core.navigation.NavigationGraph
 import android.graphics.Color
 import androidx.core.view.WindowCompat
+import com.example.terrace.features.home.screens.HomeScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -20,7 +24,10 @@ class MainActivity : ComponentActivity() {
         window.navigationBarColor = Color.TRANSPARENT
         setContent {
             val navController = rememberNavController()
-            NavigationGraph(navController)
+            NavHost(navController, startDestination = "login") {
+                composable("login") { LoginScreen(navController) }
+                composable("home") { HomeScreen(navController) }
+            }
         }
     }
 }
