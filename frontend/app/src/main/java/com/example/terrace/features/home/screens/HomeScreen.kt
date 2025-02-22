@@ -34,7 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-import com.example.terrace.features.home.components.LayoutComponent
+import com.example.terrace.features.global.layout.screen.LayoutComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

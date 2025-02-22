@@ -1,4 +1,4 @@
-package com.example.terrace.features.home.viewmodel
+package com.example.terrace.features.global.layout.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.LiveData

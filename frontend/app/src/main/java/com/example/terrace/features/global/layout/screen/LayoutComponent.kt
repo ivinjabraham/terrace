@@ -1,4 +1,4 @@
-package com.example.terrace.features.home.components
+package com.example.terrace.features.global.layout.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -11,11 +11,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.terrace.R
-import com.example.terrace.features.home.viewmodel.LayoutViewModel
+import com.example.terrace.features.global.layout.viewmodel.LayoutViewModel
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.navigation.NavController
-import com.example.terrace.features.home.viewmodel.NavigationAction
+import com.example.terrace.features.global.layout.viewmodel.NavigationAction
 
 @Composable
 fun LayoutComponent(navController: NavController, viewModel: LayoutViewModel) {
@@ -24,7 +24,7 @@ fun LayoutComponent(navController: NavController, viewModel: LayoutViewModel) {
     // Observe navigation events
     LaunchedEffect(navigationEvent) {
         when (navigationEvent) {
-            NavigationAction.Stats -> navController.navigate("stats")
+            NavigationAction.Stats -> navController.navigate("usage")
             NavigationAction.Constellation -> navController.navigate("constellation")
             NavigationAction.Leaderboard -> navController.navigate("leaderboard")
             NavigationAction.Previous -> {} // Handle previous action
