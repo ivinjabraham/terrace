@@ -1,17 +1,22 @@
-package com.example.terrace.features.auth.screens
+package com.example.terrace.features.home.screens
 
-import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import androidx.compose.ui.viewinterop.AndroidView
-import com.example.terrace.BackgroundComponent
+import com.example.terrace.features.home.components.LeaderboardComponent
+import com.example.terrace.features.home.components.LeaderboardEntry
 
 @Composable
-fun HomeScreen(navController: NavController) {
-    AndroidView(
-        factory = { context -> BackgroundComponent(context) },
-        modifier = Modifier.fillMaxSize()
+fun HomeScreen() {
+    LeaderboardComponent(
+        weeklyEntries = listOf(
+            LeaderboardEntry(rank = 4, name = "Jerry A.", points = 890),
+            LeaderboardEntry(rank = 5, name = "Ananya K.", points = 812),
+            LeaderboardEntry(rank = 6, name = "You", points = 560, isCurrentUser = true),
+            LeaderboardEntry(rank = 7, name = "Krishna P.", points = 510),
+            LeaderboardEntry(rank = 9, name = "Fida S.", points = 409)
+        ),
+        monthlyEntries = emptyList(),
+        allTimeEntries = emptyList()
     )
 }
 

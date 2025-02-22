@@ -1,157 +1,151 @@
 package com.example.terrace.features.home.components
 
-import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.drawable.Drawable
-import android.text.TextPaint
-import android.util.AttributeSet
-import android.view.View
-import com.example.terrace.R
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 /**
- * TODO: document your custom view class.
+ * LeaderboardComponent as a class
  */
-class LeaderboardComponent : View {
+class LeaderboardComponent(
+    private val weeklyEntries: List<LeaderboardEntry>,
+    private val monthlyEntries: List<LeaderboardEntry>,
+    private val allTimeEntries: List<LeaderboardEntry>
+) {
+    @Composable
+    fun Display() {
+        val tabs = listOf("Weekly", "Monthly", "All Time")
+        var selectedTabIndex by remember { mutableStateOf(0) }
 
-    private var _exampleString: String? = null // TODO: use a default from R.string...
-    private var _exampleColor: Int = Color.RED // TODO: use a default from R.color...
-    private var _exampleDimension: Float = 0f // TODO: use a default from R.dimen...
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Top Tab Row
+            TabRow(
+                selectedTabIndex = selectedTabIndex,
+                backgroundColor = Color(0xFF1B1B2F),
+                contentColor = Color.White
+            ) {
+                tabs.forEachIndexed { index, text ->
+                    Tab(
+                        selected = selectedTabIndex == index,
+                        onClick = { selectedTabIndex = index },
+                        text = { Text(text = text, fontWeight = FontWeight.SemiBold) }
+                    )
+                }
+            }
 
-    private lateinit var textPaint: TextPaint
-    private var textWidth: Float = 0f
-    private var textHeight: Float = 0f
+            // Decide which list of entries to display
+            val currentEntries = when (selectedTabIndex) {
+                0 -> weeklyEntries
+                1 -> monthlyEntries
+                else -> allTimeEntries
+            }
 
-    /**
-     * The text to draw
-     */
-    var exampleString: String?
-        get() = _exampleString
-        set(value) {
-            _exampleString = value
-            invalidateTextPaintAndMeasurements()
-        }
-
-    /**
-     * The font color
-     */
-    var exampleColor: Int
-        get() = _exampleColor
-        set(value) {
-            _exampleColor = value
-            invalidateTextPaintAndMeasurements()
-        }
-
-    /**
-     * In the example view, this dimension is the font size.
-     */
-    var exampleDimension: Float
-        get() = _exampleDimension
-        set(value) {
-            _exampleDimension = value
-            invalidateTextPaintAndMeasurements()
-        }
-
-    /**
-     * In the example view, this drawable is drawn above the text.
-     */
-    var exampleDrawable: Drawable? = null
-
-    constructor(context: Context) : super(context) {
-        init(null, 0)
-    }
-
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        init(attrs, 0)
-    }
-
-    constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(
-        context,
-        attrs,
-        defStyle
-    ) {
-        init(attrs, defStyle)
-    }
-
-    private fun init(attrs: AttributeSet?, defStyle: Int) {
-        // Load attributes
-        val a = context.obtainStyledAttributes(
-            attrs, R.styleable.LeaderboardComponent, defStyle, 0
-        )
-
-        _exampleString = a.getString(
-            R.styleable.LeaderboardComponent_exampleString
-        )
-        _exampleColor = a.getColor(
-            R.styleable.LeaderboardComponent_exampleColor,
-            exampleColor
-        )
-        // Use getDimensionPixelSize or getDimensionPixelOffset when dealing with
-        // values that should fall on pixel boundaries.
-        _exampleDimension = a.getDimension(
-            R.styleable.LeaderboardComponent_exampleDimension,
-            exampleDimension
-        )
-
-        if (a.hasValue(R.styleable.LeaderboardComponent_exampleDrawable)) {
-            exampleDrawable = a.getDrawable(
-                R.styleable.LeaderboardComponent_exampleDrawable
-            )
-            exampleDrawable?.callback = this
-        }
-
-        a.recycle()
-
-        // Set up a default TextPaint object
-        textPaint = TextPaint().apply {
-            flags = Paint.ANTI_ALIAS_FLAG
-            textAlign = Paint.Align.LEFT
-        }
-
-        // Update TextPaint and text measurements from attributes
-        invalidateTextPaintAndMeasurements()
-    }
-
-    private fun invalidateTextPaintAndMeasurements() {
-        textPaint.let {
-            it.textSize = exampleDimension
-            it.color = exampleColor
-            textWidth = it.measureText(exampleString)
-            textHeight = it.fontMetrics.bottom
+            // Leaderboard List
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFF111121))
+                    .padding(16.dp)
+            ) {
+                items(currentEntries) { entry ->
+                    LeaderboardRow(entry)
+                }
+            }
         }
     }
+}
 
-    override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
+@Composable
+private fun LeaderboardRow(entry: LeaderboardEntry) {
+    val rowModifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 4.dp)
 
-        // TODO: consider storing these as member variables to reduce
-        // allocations per draw cycle.
-        val paddingLeft = paddingLeft
-        val paddingTop = paddingTop
-        val paddingRight = paddingRight
-        val paddingBottom = paddingBottom
-
-        val contentWidth = width - paddingLeft - paddingRight
-        val contentHeight = height - paddingTop - paddingBottom
-
-        exampleString?.let {
-            // Draw the text.
-            canvas.drawText(
-                it,
-                paddingLeft + (contentWidth - textWidth) / 2,
-                paddingTop + (contentHeight + textHeight) / 2,
-                textPaint
-            )
+    if (entry.isCurrentUser) {
+        Box(
+            modifier = rowModifier
+                .clip(RoundedCornerShape(12.dp))
+                .background(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(Color(0xFF6A5ACD), Color(0xFF483D8B))
+                    )
+                )
+                .padding(16.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = entry.rank.toString(),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = Color.White,
+                    modifier = Modifier.width(32.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = entry.name,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 16.sp,
+                    color = Color.White,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = entry.points.toString(),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.End
+                )
+            }
         }
-
-        // Draw the example drawable on top of the text.
-        exampleDrawable?.let {
-            it.setBounds(
-                paddingLeft, paddingTop,
-                paddingLeft + contentWidth, paddingTop + contentHeight
-            )
-            it.draw(canvas)
+    } else {
+        Card(
+            shape = RoundedCornerShape(12.dp),
+            backgroundColor = Color(0xFF242447),
+            modifier = rowModifier
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(
+                    text = entry.rank.toString(),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = Color.White,
+                    modifier = Modifier.width(32.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = entry.name,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 16.sp,
+                    color = Color.White,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = entry.points.toString(),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.End
+                )
+            }
         }
     }
 }
