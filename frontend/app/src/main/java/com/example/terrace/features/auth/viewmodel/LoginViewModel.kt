@@ -1,5 +1,6 @@
 package com.example.terrace.features.auth.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,6 +11,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import retrofit2.HttpException
 import javax.inject.Inject
 
+// Define login state data class
+data class LoginState(
+    val isSuccess: Boolean = false,
+    val isLoading: Boolean = false,
+    val error: String? = null
+)
+
 @HiltViewModel
 class LoginViewModel @Inject constructor(private val authRepository: AuthRepository) : ViewModel() {
 
@@ -19,29 +27,38 @@ class LoginViewModel @Inject constructor(private val authRepository: AuthReposit
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> = _password
 
-    private val _loginResult = MutableStateFlow<String?>(null)
-    val loginResult: StateFlow<String?> = _loginResult
+    private val _loginState = MutableStateFlow(LoginState())
+    val loginState: StateFlow<LoginState> = _loginState
 
     fun updateEmail(newEmail: String) {
         _username.value = newEmail
     }
 
     fun updatePassword(newPassword: String) {
+        Log.d("LoginViewModel", newPassword)
         _password.value = newPassword
     }
 
-    fun login(email: String, password: String) {
+    fun login() {
+        android.util.Log.d("LoginViewModel", "Login function called")
         viewModelScope.launch {
             try {
-                val response = authRepository.login(email, password)
+                Log.d("LoginViewModel", "Attempting network call...")
+                _loginState.value = LoginState(isLoading = true)
+                val response = authRepository.login(_username.value, _password.value)
+                
                 if (response.isSuccessful) {
                     val token = response.body()?.token
-                    print("Login successful")
+                    // Store token if needed
+                    _loginState.value = LoginState(isSuccess = true)
                 } else {
-                    print("Login failed")
+                    _loginState.value = LoginState(error = "Login failed: ${response}")
+                    Log.d("LoginViewModel", "${response}")
                 }
             } catch (e: HttpException) {
-                print("Oops")
+                _loginState.value = LoginState(error = "Network error: ${e.message}")
+            } catch (e: Exception) {
+                _loginState.value = LoginState(error = "Unexpected error: ${e.message}")
             }
         }
     }
