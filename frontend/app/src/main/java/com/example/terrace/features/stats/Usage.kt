@@ -1,4 +1,4 @@
-package com.example.terrace
+package com.example.terrace.features.stats
 
 import android.app.AppOpsManager
 import android.app.usage.UsageStatsManager
@@ -25,7 +25,7 @@ import kotlinx.coroutines.delay
 import java.util.Calendar
 
 @Composable
-fun UsageComponent(context: Context) {
+fun UsageScreen(context: Context) {
     var hasPermission by remember { mutableStateOf(NoUsageComponent(context)) }
     var screenTime by remember { mutableStateOf(0L) }
     var selectedDays by remember { mutableStateOf(1) }

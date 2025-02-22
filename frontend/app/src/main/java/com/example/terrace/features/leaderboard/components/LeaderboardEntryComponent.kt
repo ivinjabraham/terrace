@@ -1,4 +1,4 @@
-package com.example.terrace.features.home.components
+package com.example.terrace.features.leaderboard
 
 data class LeaderboardEntry(
     val rank: Int,
