@@ -1,17 +1,40 @@
 package main
 
 import (
-    "fmt"
-    "log"
-    "net/http"
+	"backend/config"
+	"backend/db"
+	"backend/handlers"
+	"backend/middleware"
+
+	"fmt"
+	"log"
+	"net/http"
 )
 
 func main() {
-    initDB()
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    http.HandleFunc("/register", registerHandler)
-    http.HandleFunc("/login", loginHandler)
+	database, err := db.NewConnection(cfg.DBURI, "terrace", "users")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer database.Disconnect()
 
-    fmt.Println("Server running on http://0.0.0.0:8080")
-    log.Fatal(http.ListenAndServe("0.0.0.0:8080", nil))
+	authHandler := handlers.NewAuthHandler(database, cfg.JWTSecret)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("POST /register", authHandler.Register)
+	mux.HandleFunc("POST /login", authHandler.Login)
+
+	protectedMux := http.NewServeMux()
+	protectedMux.HandleFunc("GET /api/users", authHandler.GetUsers)
+
+	mux.Handle("/", middleware.JWTMiddleware(cfg.JWTSecret)(protectedMux))
+
+	fmt.Println("Server running on http://0.0.0.0:8080")
+	log.Fatal(http.ListenAndServe("0.0.0.0:8080", mux))
+
 }
