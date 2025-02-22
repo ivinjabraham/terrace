@@ -26,10 +26,11 @@ import android.util.Log
 
 import androidx.compose.material3.*
 import androidx.compose.ui.zIndex
+import android.media.MediaPlayer
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
-
-
 @Composable
 fun HomeScreen(navController: NavController) {
     var screenSize by remember { mutableStateOf(IntSize.Zero) }
@@ -85,6 +86,19 @@ fun HomeScreen(navController: NavController) {
                     }
                 }
             }
+        }
+    }
+
+    // Play audio when entering HomeScreen
+    val context = LocalContext.current
+    DisposableEffect(context) {
+        val mediaPlayer = MediaPlayer.create(context, R.raw.celestia)
+        mediaPlayer.isLooping = true
+        mediaPlayer.start()
+
+        onDispose {
+            mediaPlayer.stop()
+            mediaPlayer.release()
         }
     }
 
