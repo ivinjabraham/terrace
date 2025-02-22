@@ -7,15 +7,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import com.example.terrace.core.navigation.Screen
+import com.example.terrace.core.navigation.safeNavigate
 import com.example.terrace.features.auth.viewmodel.LoginViewModel
 
+
 @Composable
-fun LoginScreen(viewModel: LoginViewModel = viewModel()) {
+fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = viewModel()) {
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.Center
     ) {
         OutlinedTextField(
@@ -33,7 +39,7 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel()) {
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = { /* Handle login */ }) {
+        Button(onClick = { navController.safeNavigate(Screen.Home.route)}) {  // Call ViewModel function : TODO: LOGIN
             Text("Login")
         }
     }
