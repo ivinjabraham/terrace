@@ -6,16 +6,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import com.example.terrace.core.navigation.Screen
-import com.example.terrace.core.navigation.safeNavigate
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.terrace.features.auth.viewmodel.LoginViewModel
 
 
 @Composable
-fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = viewModel()) {
-    val email by viewModel.email.collectAsState()
+fun LoginScreen(viewModel: LoginViewModel = hiltViewModel()) {
+    val email by viewModel.username.collectAsState()
     val password by viewModel.password.collectAsState()
 
     Column(
@@ -39,7 +36,7 @@ fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = vi
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = { navController.safeNavigate(Screen.Home.route)}) {  // Call ViewModel function : TODO: LOGIN
+        Button(onClick = { viewModel.login(email, password) }) {
             Text("Login")
         }
     }
