@@ -33,8 +33,11 @@ import androidx.compose.foundation.background
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.terrace.features.home.components.BigDipper
 
 import com.example.terrace.features.home.components.LayoutComponent
+import com.example.terrace.features.home.components.LittleDipper
+import com.example.terrace.features.home.components.Orion
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -183,6 +186,38 @@ fun HomeScreen(navController: NavController) {
                     size = size
                 )
             }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .offset { IntOffset(offsetX.toInt() + screenSize.width * 2 - 300, -1000) } // Move the entire StarryBox
+            ) {
+                LittleDipper(offsetX)
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .offset { IntOffset(offsetX.toInt() + screenSize.width * 2 - 1400, 500) }
+
+            ) {
+                BigDipper(offsetX)
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .offset { IntOffset(offsetX.toInt() + -screenSize.width , 0) } // Move the entire StarryBox
+            ) {
+                Orion(offsetX)
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .offset { IntOffset(offsetX.toInt() + -screenSize.width , 0) } // Move the entire StarryBox
+            ) {
+                Orion(offsetX)
+            }
+
 
             // Different layers for parallax effect
             Box(modifier = Modifier.fillMaxSize()) {
