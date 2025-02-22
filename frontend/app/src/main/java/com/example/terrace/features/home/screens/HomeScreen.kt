@@ -1,5 +1,6 @@
 package com.example.terrace.features.home.screens
 
+import StarData
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -11,7 +12,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.*
 import androidx.navigation.NavController
@@ -20,6 +20,8 @@ import kotlin.random.Random
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
+
 import com.example.terrace.R
 
 import android.util.Log
@@ -27,26 +29,37 @@ import android.util.Log
 import androidx.compose.material3.*
 import androidx.compose.ui.zIndex
 import android.media.MediaPlayer
-import androidx.compose.runtime.*
+import androidx.compose.foundation.background
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+
+import com.example.terrace.features.home.components.LayoutComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController) {
     var screenSize by remember { mutableStateOf(IntSize.Zero) }
     val density = LocalDensity.current
+
+
     val starCount = 100
     val clusterCount = 10
 
-    var transformState by remember {
-        mutableStateOf(TransformState(
-            offsetX = 0f,
-            scale = 1f
-        ))
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var direction by remember { mutableStateOf(1f) } //
+    // Auto-scroll effect
+    LaunchedEffect(Unit) {
+        while (true) {
+            withFrameNanos {
+                offsetX += direction * 2f // Adjust speed here
+                if (offsetX >= screenSize.width * 2f || offsetX <= -screenSize.width) {
+                    direction *= -1 // Reverse direction
+                }
+            }
+        }
     }
 
-    val minScale = 1.0f
-    val maxScale = 1.8f
 
     val starPositions = remember(screenSize) {
         mutableStateListOf<StarData>().apply {
@@ -54,13 +67,15 @@ fun HomeScreen(navController: NavController) {
                 while (size < starCount) {
                     val newPosition = getRandomPosition(screenSize)
                     if (none { it.position.distanceTo(newPosition) < 100 }) {
+                        val size = Random.nextInt(10, 60).dp
                         add(
                             StarData(
                                 position = newPosition,
-                                size = Random.nextInt(10, 60).dp,
+                                size = size,
                                 rotation = Random.nextFloat() * 360f,
                                 twinkleSpeed = Random.nextInt(200, 800),
-                                drawableRes = if (Random.nextInt(3) == 0) R.drawable.star_2 else R.drawable.star_1
+                                drawableRes = if (Random.nextInt(3) == 0) R.drawable.star_2 else R.drawable.star_1,
+                                sizeCategory = classifyStarBySize(size)
                             )
                         )
                     }
@@ -72,15 +87,16 @@ fun HomeScreen(navController: NavController) {
                     repeat(clusterSize) {
                         val angle = Random.nextFloat() * 360f
                         val distance = Random.nextInt(90, 200).toFloat()
-                        val offsetX = (clusterCenter.x + distance * kotlin.math.cos(angle)).coerceIn(-screenSize.width.toFloat(), screenSize.width.toFloat() * 2)
-                        val offsetY = (clusterCenter.y + distance * kotlin.math.sin(angle)).coerceIn(0f, screenSize.height.toFloat())
+                        val coffsetX = (clusterCenter.x + distance * kotlin.math.cos(angle)).coerceIn(-screenSize.width.toFloat(), screenSize.width.toFloat() * 2)
+                        val coffsetY = (clusterCenter.y + distance * kotlin.math.sin(angle)).coerceIn(0f, screenSize.height.toFloat())
                         add(
                             StarData(
-                                position = Offset(offsetX, offsetY),
+                                position = Offset(coffsetX, coffsetY),
                                 size = Random.nextInt(10, 40).dp,
                                 rotation = Random.nextFloat() * 360f,
                                 twinkleSpeed = Random.nextInt(200, 800),
-                                drawableRes = if (Random.nextInt(3) == 0) R.drawable.star_2 else R.drawable.star_1
+                                drawableRes = if (Random.nextInt(3) == 0) R.drawable.star_2 else R.drawable.star_1,
+                                sizeCategory = classifyStarBySize(Random.nextInt(10, 40).dp)
                             )
                         )
                     }
@@ -102,44 +118,25 @@ fun HomeScreen(navController: NavController) {
         }
     }
 
-    val minStarX = remember(starPositions) { starPositions.minOfOrNull { it.position.x } ?: 0f }
-    val maxStarX = remember(starPositions) { starPositions.maxOfOrNull { it.position.x } ?: screenSize.width.toFloat() }
-
-    val minOffset = (minStarX - 50).coerceAtMost(0f)
-    val maxOffset = (maxStarX - screenSize.width + 50).coerceAtLeast(0f)
-
-    val draggableState = rememberDraggableState { delta ->
-        transformState = transformState.copy(
-            offsetX = (transformState.offsetX + delta)
-                .coerceIn(minOffset * transformState.scale, maxOffset * transformState.scale)
-        )
-        Log.d("HomeScreen", "Dragging: offsetX = ${transformState.offsetX}")
-    }
-
     Box(modifier = Modifier.fillMaxSize()) {
         // Transparent Top Bar
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Transparent)
+                .padding(WindowInsets.ime.asPaddingValues())
+                .zIndex(1f),
+            horizontalAlignment = Alignment.CenterHorizontally // Centers all children horizontally
+        ) {
             TopAppBar(
-                title = {
-                    Text("Terrace")
-                },
-                actions = {
-                    // Add score to the right
-                    Text(
-                        text = "Score: 100", // Replace 100 with your dynamic score
-                        color = Color.White,
-                        modifier = Modifier.padding(end = 16.dp) // Add padding to the right
-                    )
-                },
+                title = { Text("Terrace") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.hsv(0f, 0f, 0f, 0.2f),  // Transparent background
-                    titleContentColor = Color.White // Title color
-                ),
-                modifier = Modifier.zIndex(1f) // Ensure TopAppBar stays above other content
+                    containerColor = Color.Transparent,
+                    titleContentColor = Color.White
+                )
             )
-
+            LayoutComponent(viewModel = viewModel(), navController = navController)
         }
-
         // Starry Sky Content
         Box(
             modifier = Modifier
@@ -150,38 +147,24 @@ fun HomeScreen(navController: NavController) {
                     Log.d("HomeScreen", "Screen Size: $screenSize")
                 }
                 .pointerInput(Unit) {
-                    detectTransformGestures { centroid, pan, zoom, _ ->
-                        val oldScale = transformState.scale
-                        val newScale = (oldScale * zoom).coerceIn(minScale, maxScale)
-
-                        val contentPoint = (centroid - Offset(transformState.offsetX, 0f)) / oldScale
-                        val deltaContentPoint = contentPoint * (newScale - oldScale)
-
-                        val newOffsetX = (transformState.offsetX - deltaContentPoint.x + pan.x)
-                            .coerceIn(minOffset * newScale, maxOffset * newScale)
-
-                        Log.d("HomeScreen", "New OffsetX: $newOffsetX, Previous OffsetX: ${transformState.offsetX}, Scale: $newScale")
-
-                        transformState = transformState.copy(
-                            scale = newScale,
-                            offsetX = newOffsetX
+                    detectTransformGestures { _, pan, _, _ ->
+                        // Clamp offsetX within the range
+                        offsetX = (offsetX + pan.x).coerceIn(
+                            -screenSize.width.toFloat(),
+                            screenSize.width * 2f
                         )
-
-                        Log.d("HomeScreen", "Updated Transform: offsetX = $newOffsetX, scale = $newScale")
+                        Log.d("HomeScreen", "Dragging: offsetX = $offsetX")
                     }
                 }
-
-                .draggable(state = draggableState, orientation = Orientation.Horizontal)
-        ) {
+        )  {
             // Background gradients (Starry Sky)
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawRect(
                     brush = Brush.radialGradient(
                         colors = listOf(Color(0x0CA506EF), Color(0x1E000000), Color.Black),
                         center = Offset(
-                            x = (transformState.offsetX - size.width)
-                                .coerceIn(-size.width.toFloat(), size.width.toFloat()),
-                            y = size.height
+                            x = screenSize.width / 2f,
+                            y = screenSize.height / 2f
                         ),
                         radius = size.minDimension * 5f
                     ),
@@ -190,10 +173,9 @@ fun HomeScreen(navController: NavController) {
 
                 drawRect(
                     brush = Brush.radialGradient(
-                        colors = listOf(Color(0x1DFF0000), Color(0x1E050001), Color.Black),
+                        colors = listOf(Color(0x1D0088FF), Color(0x1E050001), Color.Black),
                         center = Offset(
-                            x = (size.width * 2 + transformState.offsetX)
-                                .coerceIn(-size.width.toFloat(), size.width.toFloat() * 2),
+                            x = screenSize.width / 2f,
                             y = 0f
                         ),
                         radius = size.minDimension * 5f
@@ -202,68 +184,46 @@ fun HomeScreen(navController: NavController) {
                 )
             }
 
-            // Star layer
-            Box(
-                modifier = Modifier
-                    .width(with(density) { (maxStarX - minStarX + screenSize.width).toDp() })
-                    .fillMaxHeight()
-                    .graphicsLayer {
-                        scaleX = transformState.scale
-                        scaleY = transformState.scale
-                        translationX = transformState.offsetX
+            // Different layers for parallax effect
+            Box(modifier = Modifier.fillMaxSize()) {
+                // Small Stars
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .offset { IntOffset((offsetX * 0.5).toInt(), 0) } // Slower movement
+                ) {
+                    starPositions.filter { it.sizeCategory == StarSizeCategory.SMALL }.forEach { star ->
+                        RenderStar(star, density, twinkleAlpha = Random.nextFloat())
                     }
-            ) {
-                starPositions.forEach { star ->
-                    val starImage: Painter = painterResource(id = star.drawableRes)
+                }
 
-                    val twinkleAlpha by animateFloatAsState(
-                        targetValue = if (Random.nextFloat() < 0.5f) 0.5f else 1f,
-                        animationSpec = infiniteRepeatable(
-                            animation = tween(star.twinkleSpeed, easing = LinearEasing),
-                            repeatMode = RepeatMode.Reverse
-                        )
-                    )
+                // Medium Stars
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .offset { IntOffset((offsetX * 0.7).toInt(), 0) } // Moderate movement
+                ) {
+                    starPositions.filter { it.sizeCategory == StarSizeCategory.MEDIUM }.forEach { star ->
+                        RenderStar(star, density, twinkleAlpha = Random.nextFloat())
+                    }
+                }
 
-                    Box(
-                        modifier = Modifier
-                            .offset(
-                                with(density) { star.position.x.toDp() },
-                                with(density) { star.position.y.toDp() }
-                            )
-                            .size(star.size)
-                    ) {
-                        Image(
-                            painter = starImage,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(star.size)
-                                .graphicsLayer {
-                                    rotationZ = star.rotation
-                                    alpha = twinkleAlpha * 0.6f
-                                    shadowElevation = 15f
-                                    scaleX = 1.3f
-                                    scaleY = 1.3f
-                                },
-                            contentScale = ContentScale.Fit
-                        )
-
-                        Image(
-                            painter = starImage,
-                            contentDescription = "Twinkling Star",
-                            modifier = Modifier
-                                .size(star.size)
-                                .graphicsLayer {
-                                    rotationZ = star.rotation
-                                    alpha = twinkleAlpha
-                                },
-                            contentScale = ContentScale.Fit
-                        )
+                // Large Stars
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .offset { IntOffset((offsetX * 0.9).toInt(), 0) } // Fastest movement
+                ) {
+                    starPositions.filter { it.sizeCategory == StarSizeCategory.LARGE }.forEach { star ->
+                        RenderStar(star, density, twinkleAlpha = Random.nextFloat())
                     }
                 }
             }
         }
     }
 }
+
+
 
 fun getRandomPosition(screenSize: IntSize): Offset {
     if (screenSize.width < 100 || screenSize.height < 100) return Offset.Zero
@@ -275,15 +235,64 @@ fun getRandomPosition(screenSize: IntSize): Offset {
 
 fun Offset.distanceTo(other: Offset) = sqrt((x - other.x) * (x - other.x) + (y - other.y) * (y - other.y))
 
-data class StarData(
-    val position: Offset,
-    val size: Dp,
-    val rotation: Float,
-    val twinkleSpeed: Int,
-    val drawableRes: Int
-)
+// Classification based on size
+enum class StarSizeCategory {
+    SMALL, MEDIUM, LARGE
+}
 
-private data class TransformState(
-    val offsetX: Float,
-    val scale: Float
-)
+fun classifyStarBySize(size: Dp): StarSizeCategory {
+    return when {
+        size.value < 20 -> StarSizeCategory.SMALL
+        size.value in 20f..40f -> StarSizeCategory.MEDIUM
+        else -> StarSizeCategory.LARGE
+    }
+}
+
+@Composable
+fun RenderStar(star: StarData, density: Density, twinkleAlpha: Float) {
+    val starImage: Painter = painterResource(id = star.drawableRes)
+
+    val twinkleAlphaAnimation by animateFloatAsState(
+        targetValue = if (Random.nextFloat() < 0.5f) 0.5f else 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(star.twinkleSpeed, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+
+    Box(
+        modifier = Modifier
+            .offset(
+                with(density) { star.position.x.toDp() },
+                with(density) { star.position.y.toDp() }
+            )
+            .size(star.size)
+    ) {
+        Image(
+            painter = starImage,
+            contentDescription = null,
+            modifier = Modifier
+                .size(star.size)
+                .graphicsLayer {
+                    rotationZ = star.rotation
+                    alpha = twinkleAlphaAnimation * 0.6f
+                    shadowElevation = 15f
+                    scaleX = 1.3f
+                    scaleY = 1.3f
+                },
+            contentScale = ContentScale.Fit
+        )
+
+        Image(
+            painter = starImage,
+            contentDescription = "Twinkling Star",
+            modifier = Modifier
+                .size(star.size)
+                .graphicsLayer {
+                    rotationZ = star.rotation
+                    alpha = twinkleAlphaAnimation
+                },
+            contentScale = ContentScale.Fit
+        )
+    }
+}
