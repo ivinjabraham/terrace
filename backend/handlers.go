@@ -7,7 +7,7 @@ import (
     "strings"
 )
 
-func registerHandler(w http.ResponseWriter, r *http.Request) {
+func registerHandler(w http.ResponseWriter, r *http.Request) {	
     if r.Method != http.MethodPost {
         http.Error(w, "Invalid request method. Use POST.", http.StatusMethodNotAllowed)
         return
@@ -23,8 +23,13 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    if err := registerUser(creds.Username, creds.Password); err != nil {
-        http.Error(w, "Registration failed.", http.StatusInternalServerError)
+    err := RegisterUser(ctx, collection, creds.Username, creds.Password)
+    if err != nil {
+        if err.Error() == "User already exists" {
+            http.Error(w, err.Error(), http.StatusConflict) // 409 Conflict
+        } else {
+            http.Error(w, "Registration failed.", http.StatusInternalServerError)
+        }
         return
     }
 

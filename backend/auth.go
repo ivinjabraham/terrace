@@ -3,11 +3,13 @@ package main
 import (
     "errors"
     "time"
+	"context"
 
     "github.com/golang-jwt/jwt/v5"
     "go.mongodb.org/mongo-driver/bson"
     "go.mongodb.org/mongo-driver/bson/primitive"
     "golang.org/x/crypto/bcrypt"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var jwtSecret = []byte(jwtsecret)
@@ -39,17 +41,25 @@ func generateToken(username string) (string, error) {
     return token.SignedString(jwtSecret)
 }
 
-func registerUser(username, password string) error {
-    hashedPass, err := hashPassword(password)
+func RegisterUser(ctx context.Context, collection *mongo.Collection, username, password string) error {
+    filter := bson.M{"username": username}
+    var existingUser User
+
+    err := collection.FindOne(ctx, filter).Decode(&existingUser)
+    if err == nil {
+        return errors.New("User already exists")
+    }
+
+    hashedPass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
     if err != nil {
         return err
     }
 
-    user := &User{
+    user := User{
         UserID:     primitive.NewObjectID(),
         CreatedAt:  time.Now(),
         Username:   username,
-        HashedPass: hashedPass,
+        HashedPass: string(hashedPass),
     }
 
     _, err = collection.InsertOne(ctx, user)
