@@ -22,25 +22,26 @@ fun Libra(offsetX: Float) {
 
     // Big Dipper star positions
     val starPositions = listOf(
-        100.dp to 50.dp,   // 0: Top-left
-        200.dp to 80.dp,   // 1: Slightly right
-        300.dp to 150.dp,  // 2: Further right
-        400.dp to 200.dp,  // 3: Center star
-        350.dp to 300.dp,  // 4: Down-left
-        250.dp to 400.dp,  // 5: Bottom-middle
-        150.dp to 350.dp   // 6: Bottom-left
+        100.dp to 200.dp,  // 0: Left end of balance beam
+        200.dp to 200.dp,  // 1: Left-middle of beam
+        110.dp to 260.dp,  // 2: Center of beam
+        90.dp to 270.dp,  // 3: Right-middle of beam
+        160.dp to 310.dp,  // 4: Right end of beam
+        200.dp to 300.dp,  // 5: Bottom of left scale
+        140.dp to 330.dp   // 6: Bottom of right scale
     )
 
-    // Define connections for Big Dipper shape
+// Define connections for Libra shape - a horizontal line with two downward lines
     val connections = listOf(
-        0 to 1,
-        1 to 2,
+        0 to 1,  // Left horizontal segment
+        0 to 2,
+        0 to 5,
+        5 to 1,
         2 to 3,
-        3 to 4,
-        4 to 5,
-        5 to 6
+        5 to 4,
+        4 to 6,
+ // Right downward line
     )
-
     Box(
         modifier = Modifier
             .fillMaxSize()

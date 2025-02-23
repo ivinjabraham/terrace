@@ -52,6 +52,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.terrace.features.home.components.Libra
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -222,9 +223,9 @@ fun HomeScreen(navController: NavController) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .offset { IntOffset(offsetX.toInt() + -screenSize.width , 0) } // Move the entire StarryBox
+                    .offset { IntOffset(offsetX.toInt() + 0 , 0) } // Move the entire StarryBox
             ) {
-                Orion(offsetX)
+                Libra(offsetX)
             }
             Box(
                 modifier = Modifier
