@@ -211,7 +211,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TopAppBar(
-                title = { Text("Terrace") },
+                title = { },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                     titleContentColor = Color.White
@@ -219,7 +219,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel) {
             )
             LayoutComponent(viewModel = viewModel(), navController = navController)
         }
-        // Starry Sky Content – padded so the gradient doesn't extend into the status bar area
+        // Starry Sky Content – padded so the gradient doesn't extend into the status bar area0x110088FF
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -255,7 +255,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel) {
 
                 drawRect(
                     brush = Brush.radialGradient(
-                        colors = listOf(Color(0x110088FF), Color(0x1E050001), Color.Black),
+                        colors = listOf(Color(0x6B002344), Color(0x1E2A000A), Color.Black),
                         center = Offset(
                             x = screenSize.width / 2f,
                             y = 0f
@@ -328,7 +328,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel) {
                 // Large Stars
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxSize()0x110088FF
                         .offset { IntOffset((offsetX * 0.9).toInt(), 0) }
                 ) {
                     starPositions.filter { it.sizeCategory == StarSizeCategory.LARGE }

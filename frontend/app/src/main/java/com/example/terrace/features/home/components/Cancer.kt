@@ -23,24 +23,19 @@ fun Cancer(offsetX: Float, opacity: Float) {
 
     // Define star positions manually
     val starPositions = listOf(
-        50.dp to 50.dp,   // 0: Top-left
-        150.dp to 80.dp,  // 1: Slightly right
-        100.dp to 200.dp, // 2: Middle-left
-        250.dp to 250.dp, // 3: Center
-        300.dp to 100.dp, // 4: Top-right
-        200.dp to 350.dp, // 5: Bottom-middle
-        120.dp to 400.dp  // 6: Bottom-left
+        150.dp to 150.dp,
+        170.dp to 230.dp,
+        250.dp to 200.dp,
+        40.dp to 40.dp,
+        100.dp to 100.dp
     )
 
     // Define explicit node connections (index pairs)
     val connections = listOf(
         0 to 1,
-        1 to 3,
-        3 to 4,
-        3 to 5,
-        5 to 6,
-        2 to 3,
-        2 to 0
+        0 to 2,
+        0 to 3,
+        3 to 4
     )
 
     Box(

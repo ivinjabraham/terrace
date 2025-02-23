@@ -42,49 +42,16 @@ interface SessionManagerEntryPoint {
 }
 
 @Composable
-
 fun NavigationGraph(navController: NavHostController, usageViewModel: UsageViewModel) {
     val context = LocalContext.current
-    val sessionManager = remember {
-        EntryPointAccessors.fromApplication(
-            context.applicationContext,
-            SessionManagerEntryPoint::class.java
-        ).sessionManager()
-    }
-
+    
     NavHost(navController = navController, startDestination = Screen.Loader.route) {
-        composable(Screen.Loader.route) {
-            LoaderScreen(navController)
-        }
+        composable(Screen.Loader.route) { LoaderScreen(navController) }
         composable(Screen.Login.route) { LoginScreen(navController) }
         composable(Screen.Register.route) { RegisterScreen(navController) }
-
-        composable(Screen.Home.route) { HomeScreen(navController, usageViewModel = usageViewModel) } // Pass Context to HomeScreen
+        composable(Screen.Home.route) { HomeScreen(navController, usageViewModel) }
         composable(Screen.Usage.route) { UsageScreen(context, viewModel = usageViewModel) }
-
-        composable(Screen.Home.route) {
-            if (sessionManager.getAuthToken() != null) {
-                HomeScreen(navController, usageViewModel)
-            } else {
-                LaunchedEffect(Unit) {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.Loader.route)
-                    }
-                }
-            }
-        }
-
-        composable(Screen.Leaderboard.route) {
-            if (sessionManager.getAuthToken() != null) {
-                LeaderboardScreen(navController)
-            } else {
-                LaunchedEffect(Unit) {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.Loader.route)
-                    }
-                }
-            }
-        }
+        composable(Screen.Leaderboard.route) { LeaderboardScreen(navController) }
     }
 }
 
