@@ -141,7 +141,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
         usageViewModel.fetchUsageStats(context, 1)
         while (true) {
             withFrameNanos {
-                offsetX += direction * 2f // Adjust speed here
+                offsetX += direction * 1.5f // Adjust speed here
                 if (offsetX >= screenSize.width * 2f || offsetX <= -screenSize.width) {
                     direction *= -1 // Reverse direction
                 }
@@ -279,7 +279,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
                     .offset { IntOffset(offsetX.toInt() + screenSize.width * 2 - 300, -1000) }
                     // Move the entire StarryBox
             ) {
-                LittleDipper(offsetX,littleDipperOpacity)
+                LittleDipper(offsetX * 0.27f,littleDipperOpacity)
             }
 
             Box(
@@ -288,28 +288,28 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
                     .offset { IntOffset(offsetX.toInt() + screenSize.width * 2 - 1400, 500) }
 
             ) {
-                BigDipper(offsetX,bigDipperOpacity)
+                BigDipper(offsetX * 0.27f,bigDipperOpacity)
             }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .offset { IntOffset(offsetX.toInt() + 0, 0) } // Move the entire StarryBox
             ) {
-                Libra(offsetX,libraOpacity)
+                Libra(offsetX * 0.27f,libraOpacity)
             }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .offset { IntOffset(offsetX.toInt() + -screenSize.width, 0) } // Move the entire StarryBox
             ) {
-                Cancer(offsetX,cancerOpacity)
+                Cancer(offsetX * 0.27f,cancerOpacity)
             }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .offset { IntOffset(offsetX.toInt() + -screenSize.width - 2000, 0) } // Move the entire StarryBox
             ) {
-                Leo(offsetX,leoOpacity)
+                Leo(offsetX * 0.27f,leoOpacity)
             }
 
             Box(
@@ -317,7 +317,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
                     .fillMaxSize()
                     .offset { IntOffset(offsetX.toInt() + -screenSize.width - 1000, 500) } // Move the entire StarryBox
             ) {
-                Orion(offsetX,orionOpacity)
+                Orion(offsetX * 0.27f,orionOpacity)
             }
 
 

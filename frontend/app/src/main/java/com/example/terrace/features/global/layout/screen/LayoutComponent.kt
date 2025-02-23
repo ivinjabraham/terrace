@@ -90,7 +90,7 @@ fun GlowingCommentBox(title: String, description: String) {
                     val paint = Paint().apply {
                         color = Color(0xFFFF66B2) // Pink glow
                         asFrameworkPaint().setMaskFilter(
-                            android.graphics.BlurMaskFilter(30f, android.graphics.BlurMaskFilter.Blur.NORMAL)
+                            android.graphics.BlurMaskFilter(40f, android.graphics.BlurMaskFilter.Blur.NORMAL)
                         )
                     }
                     withTransform({ translate(-10f, -10f) }) {
@@ -156,13 +156,6 @@ fun BottomNavBar(viewModel: LayoutViewModel) {
             elevation = 0.dp
         ) {
             BottomNavigationItem(
-                icon = { Icon(painterResource(R.drawable.ic_arrow_left), contentDescription = "Previous", modifier = Modifier.size(26.dp), tint = Color.White) },
-                label = { Text("Prev", fontSize = 8.sp, color = Color.White) },
-                selected = false,
-                onClick = { viewModel.onPrevConstellation() }
-            )
-
-            BottomNavigationItem(
                 icon = { Icon(painterResource(R.drawable.ic_stats), contentDescription = "Stats", modifier = Modifier.size(26.dp), tint = Color.White ) },
                 label = { Text("Stats", fontSize = 8.sp, color = Color.White) },
                 selected = false,
@@ -181,13 +174,6 @@ fun BottomNavBar(viewModel: LayoutViewModel) {
                 label = { Text("Leaderboard", fontSize = 8.sp, color = Color.White) },
                 selected = false,
                 onClick = { viewModel.onLeaderboardClick() }
-            )
-
-            BottomNavigationItem(
-                icon = { Icon(painterResource(R.drawable.ic_arrow_right), contentDescription = "Next", modifier = Modifier.size(26.dp), tint = Color.White) },
-                label = { Text("Next", fontSize = 8.sp, color = Color.White) },
-                selected = false,
-                onClick = { viewModel.onNextConstellation() }
             )
         }
     }
