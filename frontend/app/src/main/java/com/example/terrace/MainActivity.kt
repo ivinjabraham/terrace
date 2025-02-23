@@ -11,6 +11,16 @@ import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.terrace.features.stats.model.UsageViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.terrace.core.navigation.Screen
+import com.example.terrace.features.global.layout.screen.LayoutComponent
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -23,9 +33,23 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val navController = rememberNavController()
-            val viewModel: UsageViewModel = hiltViewModel() // Inject ViewModel
+            val viewModel: UsageViewModel = hiltViewModel()
+            
+            // Get current destination
+            val currentDestination by navController.currentBackStackEntryAsState()
+            val isLoaderScreen = currentDestination?.destination?.route == Screen.Loader.route
 
-            NavigationGraph(navController = navController, usageViewModel = viewModel)
+            Box(modifier = Modifier.fillMaxSize()) {
+                NavigationGraph(navController = navController, usageViewModel = viewModel)
+                
+                // Show bottom nav only when not on loader screen
+                if (!isLoaderScreen) {
+                    LayoutComponent(
+                        viewModel = hiltViewModel(),
+                        navController = navController,
+                    )
+                }
+            }
         }
     }
 }

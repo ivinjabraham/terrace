@@ -73,10 +73,6 @@ fun LayoutComponent(navController: NavController, viewModel: LayoutViewModel) {
                         .align(Alignment.BottomCenter) // Stick to bottom
                         .padding(bottom = 80.dp) // Move it up
                 ) {
-                    GlowingCommentBox(
-                        title = "Leo",
-                        description = "fqufof qof qow q woqwo idoqdjoqwi qowid qowi doiqqodiwj qowdiqodij"
-                    )
                 }
             }
 }
