@@ -7,6 +7,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.terrace.core.navigation.NavigationGraph
 import android.graphics.Color
 import androidx.core.view.WindowCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.terrace.features.stats.model.UsageViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -17,9 +19,12 @@ class MainActivity : ComponentActivity() {
 
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
+
         setContent {
             val navController = rememberNavController()
-            NavigationGraph(navController = navController)
+            val viewModel: UsageViewModel = hiltViewModel() // Inject ViewModel
+
+            NavigationGraph(navController = navController, usageViewModel = viewModel)
         }
     }
 }

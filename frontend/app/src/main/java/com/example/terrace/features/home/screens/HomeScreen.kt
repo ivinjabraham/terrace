@@ -1,6 +1,7 @@
 package com.example.terrace.features.home.screens
 
 import StarData
+import android.content.Context
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -44,20 +45,18 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.drawscope.withTransform
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+
+
 import com.example.terrace.features.home.components.Libra
+import com.example.terrace.features.stats.model.UsageViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel) {
+    val context = LocalContext.current
     var screenSize by remember { mutableStateOf(IntSize.Zero) }
     val density = LocalDensity.current
 
@@ -68,7 +67,10 @@ fun HomeScreen(navController: NavController) {
     var direction by remember { mutableStateOf(1f) }
     // Auto-scroll effect
 
+
     LaunchedEffect(Unit) {
+        Log.d("HomeScreen", "Calling fetchUsageStats")
+        usageViewModel.fetchUsageStats(context, 7)
         while (true) {
             withFrameNanos {
                 offsetX += direction * 2f // Adjust speed here
@@ -126,7 +128,7 @@ fun HomeScreen(navController: NavController) {
     }
 
     // Play audio when entering HomeScreen
-    val context = LocalContext.current
+
     DisposableEffect(context) {
         val mediaPlayer = MediaPlayer.create(context, R.raw.celestia)
         mediaPlayer.isLooping = true
@@ -223,14 +225,14 @@ fun HomeScreen(navController: NavController) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .offset { IntOffset(offsetX.toInt() + 0 , 0) } // Move the entire StarryBox
+                    .offset { IntOffset(offsetX.toInt() + 0, 0) } // Move the entire StarryBox
             ) {
                 Libra(offsetX)
             }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .offset { IntOffset(offsetX.toInt() + -screenSize.width , 0) } // Move the entire StarryBox
+                    .offset { IntOffset(offsetX.toInt() + -screenSize.width, 0) } // Move the entire StarryBox
             ) {
                 Orion(offsetX)
             }

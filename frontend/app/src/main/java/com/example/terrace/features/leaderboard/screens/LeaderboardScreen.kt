@@ -1,4 +1,4 @@
-package com.example.terrace.features.leaderboard
+package com.example.terrace.features.leaderboard.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.navigation.NavController
 
 import com.example.terrace.R
+import com.example.terrace.features.leaderboard.LeaderboardEntry
 
 val Philosopher = FontFamily(
     Font(R.font.philosopher, FontWeight.Normal)

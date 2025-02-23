@@ -1,5 +1,8 @@
 package com.example.terrace.core.network
 
+import com.example.terrace.core.network.repository.UsageRepository
+import com.example.terrace.core.network.repository.UsageRepositoryImpl
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,7 +19,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://192.168.38.29:8080")
+            .baseUrl("http://192.168.38.217:8080")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
@@ -26,4 +29,15 @@ object NetworkModule {
     fun provideAppService(retrofit: Retrofit): ApiService {
         return retrofit.create(ApiService::class.java)
     }
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class RepositoryModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindUsageRepository(
+        usageRepositoryImpl: UsageRepositoryImpl
+    ): UsageRepository
 }
