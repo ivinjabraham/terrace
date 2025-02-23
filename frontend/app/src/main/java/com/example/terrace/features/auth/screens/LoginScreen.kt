@@ -26,6 +26,7 @@ import com.example.terrace.features.auth.viewmodel.LoginViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = hiltViewModel()) {
@@ -44,7 +45,7 @@ fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = hi
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colors.background)
+            .background(Color(0xFF121212))
             .padding(horizontal = 24.dp)
     ) {
         Column(
@@ -57,13 +58,14 @@ fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = hi
             Text(
                 text = "Welcome Back",
                 style = MaterialTheme.typography.h4,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = Color.White
             )
             
             Text(
                 text = "Sign in to continue",
                 style = MaterialTheme.typography.subtitle1,
-                color = MaterialTheme.colors.onBackground.copy(alpha = 0.6f)
+                color = Color(0xFFA0A0A0)
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -71,10 +73,18 @@ fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = hi
             OutlinedTextField(
                 value = username,
                 onValueChange = { viewModel.updateEmail(it) },
-                label = { Text("Email") },
+                label = { Text("Username") },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !loginState.isLoading,
                 singleLine = true,
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    textColor = Color.White,
+                    focusedLabelColor = Color(0xFFA0A0A0),
+                    unfocusedLabelColor = Color(0xFFA0A0A0),
+                    cursorColor = Color.White,
+                    focusedBorderColor = Color(0xFFA0A0A0),
+                    unfocusedBorderColor = Color(0xFF666666)
+                ),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next
@@ -90,6 +100,14 @@ fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = hi
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !loginState.isLoading,
                 singleLine = true,
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    textColor = Color.White,
+                    focusedLabelColor = Color(0xFFA0A0A0),
+                    unfocusedLabelColor = Color(0xFFA0A0A0),
+                    cursorColor = Color.White,
+                    focusedBorderColor = Color(0xFFA0A0A0),
+                    unfocusedBorderColor = Color(0xFF666666)
+                ),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done
@@ -133,7 +151,7 @@ fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = hi
                 if (loginState.isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colors.onPrimary,
+                        color = Color.White,
                         strokeWidth = 2.dp
                     )
                 } else {
@@ -148,7 +166,7 @@ fun LoginScreen(navController: NavHostController, viewModel: LoginViewModel = hi
                 onClick = { navController.navigate("register") },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Don't have an account? Sign Up")
+                Text("Don't have an account? Sign Up", color = Color.White)
             }
         }
     }
