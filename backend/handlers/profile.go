@@ -3,6 +3,7 @@ package handlers
 import (
 	"backend/middleware"
 	"backend/models"
+	"backend/utils"
 	"encoding/json"
 	"net/http"
 
@@ -44,10 +45,16 @@ func (h *Handler) UpdateScreenTime(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Calculate new score based on screen time
+	newScore := utils.CalculateScore(body.ScreenTime)
+
 	result, err := h.db.Collection.UpdateOne(
 		r.Context(),
 		bson.M{"username": username},
-		bson.M{"$set": bson.M{"screentime": body.ScreenTime}},
+		bson.M{"$set": bson.M{
+			"screentime": body.ScreenTime,
+			"score":      newScore,
+		}},
 	)
 
 	if err != nil {
@@ -61,5 +68,8 @@ func (h *Handler) UpdateScreenTime(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"status": "updated"})
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"status": "updated",
+		"score":  newScore,
+	})
 }
