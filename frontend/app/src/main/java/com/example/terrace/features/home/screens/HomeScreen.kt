@@ -210,7 +210,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel) {
 
                 drawRect(
                     brush = Brush.radialGradient(
-                        colors = listOf(Color(0x1D0088FF), Color(0x1E050001), Color.Black),
+                        colors = listOf(Color(0x6B002344), Color(0x1E2A000A), Color.Black),
                         center = Offset(
                             x = screenSize.width / 2f,
                             y = 0f
