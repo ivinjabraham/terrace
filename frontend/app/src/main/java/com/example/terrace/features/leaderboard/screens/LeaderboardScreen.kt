@@ -41,6 +41,7 @@ import android.util.Log
 import com.example.terrace.core.auth.SessionManager
 import com.example.terrace.core.navigation.Screen
 import androidx.compose.ui.platform.LocalContext
+import com.example.terrace.features.home.screens.LoadingDots
 
 
 import dagger.hilt.EntryPoint
@@ -92,8 +93,8 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CircularProgressIndicator(color = Color.White)
                 Spacer(modifier = Modifier.height(16.dp))
+                LoadingDots()
                 Text(
                     text = "Loading Leaderboard...",
                     color = Color.White,
