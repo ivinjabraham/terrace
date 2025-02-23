@@ -8,7 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (h *AuthHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	cursor, err := h.db.Collection.Find(r.Context(), bson.M{})
 	if err != nil {
 		http.Error(w, "Failed to fetch users", http.StatusInternalServerError)

@@ -23,7 +23,7 @@ func main() {
 	}
 	defer database.Disconnect()
 
-	authHandler := handlers.NewAuthHandler(database, cfg.JWTSecret)
+	authHandler := handlers.NewHandler(database, cfg.JWTSecret)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /register", authHandler.Register)
@@ -31,6 +31,7 @@ func main() {
 
 	protectedMux := http.NewServeMux()
 	protectedMux.HandleFunc("GET /api/users", authHandler.GetUsers)
+	protectedMux.HandleFunc("GET /api/profile", authHandler.Profile)
 
 	mux.Handle("/", middleware.JWTMiddleware(cfg.JWTSecret)(protectedMux))
 

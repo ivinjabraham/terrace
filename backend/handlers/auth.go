@@ -14,19 +14,19 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type AuthHandler struct {
+type Handler struct {
 	db        *db.Database
 	jwtSecret string
 }
 
-func NewAuthHandler(db *db.Database, jwtSecret string) *AuthHandler {
-	return &AuthHandler{
+func NewHandler(db *db.Database, jwtSecret string) *Handler {
+	return &Handler{
 		db:        db,
 		jwtSecret: jwtSecret,
 	}
 }
 
-func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -64,7 +64,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"status": "registered"})
 }
 
-func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var creds struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
