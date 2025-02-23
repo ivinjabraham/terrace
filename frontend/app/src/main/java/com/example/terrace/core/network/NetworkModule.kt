@@ -4,7 +4,7 @@ import com.example.terrace.core.network.repository.UsageRepository
 import com.example.terrace.core.network.repository.UsageRepositoryImpl
 import dagger.Binds
 import com.example.terrace.core.auth.SessionManager
-import com.example.terrace.features.leaderboard.LeaderboardRepository
+import com.example.terrace.features.leaderboard.repository.LeaderboardRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

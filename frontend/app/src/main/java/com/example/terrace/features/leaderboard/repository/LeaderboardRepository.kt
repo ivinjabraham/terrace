@@ -1,4 +1,4 @@
-package com.example.terrace.features.leaderboard
+package com.example.terrace.features.leaderboard.repository
 
 import com.example.terrace.core.network.ApiService
 import com.example.terrace.core.network.models.LeaderboardResponse

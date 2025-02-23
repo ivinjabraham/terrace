@@ -38,6 +38,7 @@ import com.example.terrace.features.leaderboard.LeaderboardEntry
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import android.util.Log
+import androidx.compose.foundation.clickable
 import com.example.terrace.core.auth.SessionManager
 import com.example.terrace.core.navigation.Screen
 import androidx.compose.ui.platform.LocalContext
@@ -141,19 +142,23 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
                         .padding(horizontal = 16.dp)
                 ) {
                     items(entries) { entry ->
-                        LeaderboardRow(entry)
+                        LeaderboardRow(entry, onClick = {
+                            navController.popBackStack()
+                            navController.navigate("home/${entry.score}/true")
+                        })
                     }
+
                 }
             }
         }
     }
 }
-
 @Composable
-private fun LeaderboardRow(entry: LeaderboardEntry) {
+private fun LeaderboardRow(entry: LeaderboardEntry, onClick: () -> Unit) {
     val rowModifier = Modifier
         .fillMaxWidth()
         .padding(vertical = 6.dp)
+        .clickable { onClick() } // Add click listener
 
     if (entry.isCurrentUser) {
         Box(
@@ -184,7 +189,7 @@ private fun LeaderboardRow(entry: LeaderboardEntry) {
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = entry.points.toString(),
+                    text = entry.score.toString(),
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     color = Color.White,
@@ -219,7 +224,7 @@ private fun LeaderboardRow(entry: LeaderboardEntry) {
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = entry.points.toString(),
+                    text = entry.score.toString(),
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     color = Color.White,

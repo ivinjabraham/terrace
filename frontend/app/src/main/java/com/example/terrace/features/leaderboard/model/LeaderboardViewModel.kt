@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.terrace.core.auth.SessionManager
 import com.example.terrace.features.leaderboard.LeaderboardEntry
-import com.example.terrace.features.leaderboard.LeaderboardRepository
+import com.example.terrace.features.leaderboard.repository.LeaderboardRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,7 +35,7 @@ class LeaderboardViewModel @Inject constructor(
                     LeaderboardEntry(
                         rank = index + 1,
                         name = item.username,
-                        points = item.score,
+                        score = item.score,
                         isCurrentUser = item.isCurrentUser
                     )
                 }

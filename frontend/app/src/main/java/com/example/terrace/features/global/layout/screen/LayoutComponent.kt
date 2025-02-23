@@ -35,7 +35,7 @@ fun LayoutComponent(navController: NavController, viewModel: LayoutViewModel) {
     LaunchedEffect(navigationEvent) {
         when (navigationEvent) {
             NavigationAction.Stats -> navController.navigate("usage")
-            NavigationAction.Home -> navController.navigate("home")
+            NavigationAction.Home -> navController.navigate("home/0/false")
             NavigationAction.Leaderboard -> navController.navigate("leaderboard")
             NavigationAction.Previous -> {} // Handle previous action
             NavigationAction.Next -> {} // Handle next action

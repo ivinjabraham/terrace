@@ -69,10 +69,9 @@ fun getOpacity(level: Int, score: Int): Float {
     return (score.toFloat() / requiredScore).coerceIn(0f, 1f)
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel) {
+fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isFriend: Boolean, sscore: Int) {
     val context = LocalContext.current
     val sessionManager = remember {
         EntryPointAccessors.fromApplication(
@@ -83,16 +82,18 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel) {
     val homeViewModel: HomeViewModel = hiltViewModel()
 
     LaunchedEffect(Unit) {
-        homeViewModel.fetchScore()
+        if (!isFriend) {
+            homeViewModel.fetchScore()
+        }
         if (sessionManager.getAuthToken() == null) {
             navController.navigate(Screen.Login.route) {
-                popUpTo(Screen.Loader.route)
+                popUpTo(Screen.Loader.route) { inclusive = true }
             }
         }
     }
 
     val scoreResponse = homeViewModel.score.collectAsState().value
-    val score = 5000
+    val score = if (isFriend) sscore else (scoreResponse?.score ?: 0)
 
     val baseOpacity = 0.05f
 
