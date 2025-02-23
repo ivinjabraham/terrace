@@ -35,7 +35,7 @@ fun LayoutComponent(navController: NavController, viewModel: LayoutViewModel) {
     LaunchedEffect(navigationEvent) {
         when (navigationEvent) {
             NavigationAction.Stats -> navController.navigate("usage")
-            NavigationAction.Constellation -> navController.navigate("constellation")
+            NavigationAction.Home -> navController.navigate("home")
             NavigationAction.Leaderboard -> navController.navigate("leaderboard")
             NavigationAction.Previous -> {} // Handle previous action
             NavigationAction.Next -> {} // Handle next action
@@ -174,10 +174,10 @@ fun BottomNavBar(viewModel: LayoutViewModel) {
             )
 
             BottomNavigationItem(
-                icon = { Icon(painterResource(R.drawable.ic_constellation), contentDescription = "Constellation", modifier = Modifier.size(26.dp), tint = Color.White) },
-                label = { Text("Constellation", fontSize = 8.sp, color = Color.White) },
+                icon = { Icon(painterResource(R.drawable.ic_constellation), contentDescription = "Home", modifier = Modifier.size(26.dp), tint = Color.White) },
+                label = { Text("Home", fontSize = 8.sp, color = Color.White) },
                 selected = false,
-                onClick = { viewModel.onConstellationClick() }
+                onClick = { viewModel.onHomeClick() }
             )
 
             BottomNavigationItem(
