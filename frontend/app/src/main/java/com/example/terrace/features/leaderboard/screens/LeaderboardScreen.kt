@@ -38,6 +38,7 @@ import com.example.terrace.features.leaderboard.LeaderboardEntry
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import android.util.Log
+import androidx.compose.foundation.clickable
 import com.example.terrace.core.auth.SessionManager
 import com.example.terrace.core.navigation.Screen
 import androidx.compose.ui.platform.LocalContext
@@ -140,15 +141,24 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
                         .fillMaxWidth()
                         .weight(0.85f)
                 ) {
+
+                    items(entries) { entry ->
+                        LeaderboardRow(entry, onClick = {
+                            navController.popBackStack()
+                            navController.navigate("home/${entry.score}/true")
+                        })
+                    }
+
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = 16.dp)
                     ) {
-                        items(entries) { entry ->
-                            LeaderboardRow(entry)
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
+                  items(entries) { entry ->
+                        LeaderboardRow(entry, onClick = {
+                            navController.popBackStack()
+                            navController.navigate("home/${entry.score}/true")
+                        })
                     }
                     
                     // Gradient fade overlay
@@ -173,12 +183,12 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
         }
     }
 }
-
 @Composable
-private fun LeaderboardRow(entry: LeaderboardEntry) {
+private fun LeaderboardRow(entry: LeaderboardEntry, onClick: () -> Unit) {
     val rowModifier = Modifier
         .fillMaxWidth()
         .padding(vertical = 8.dp)
+        .clickable { onClick() } // Add click listener
 
     if (entry.isCurrentUser) {
         Box(
@@ -212,7 +222,7 @@ private fun LeaderboardRow(entry: LeaderboardEntry) {
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = entry.points.toString(),
+                    text = entry.score.toString(),
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
                     color = Color.White,
@@ -232,6 +242,7 @@ private fun LeaderboardRow(entry: LeaderboardEntry) {
                     .padding(vertical = 18.dp, horizontal = 16.dp)
                     .height(56.dp)
             ) {
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxSize()
@@ -253,13 +264,14 @@ private fun LeaderboardRow(entry: LeaderboardEntry) {
                         modifier = Modifier.weight(1f)
                     )
                     Text(
-                        text = entry.points.toString(),
+                        text = entry.score.toString(),
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
                         color = Color.White,
                         textAlign = TextAlign.End
                     )
                 }
+
             }
         }
     }
