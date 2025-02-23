@@ -38,6 +38,7 @@ import com.example.terrace.features.leaderboard.LeaderboardEntry
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import android.util.Log
+import androidx.compose.foundation.clickable
 import com.example.terrace.core.auth.SessionManager
 import com.example.terrace.core.navigation.Screen
 import androidx.compose.ui.platform.LocalContext
@@ -120,10 +121,9 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color(0xFF111121))
-                    .padding(top = 36.dp)
             ) {
                 Text(
-                    text = "Leaderboards",
+                    text = "Leaderboard",
                     fontFamily = Philosopher,
                     fontWeight = FontWeight.Bold,
                     fontSize = 30.sp,
@@ -131,62 +131,100 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 10.dp)
+                        .weight(0.20f)
+                        .wrapContentHeight(Alignment.CenterVertically)
+                        .padding(vertical = 24.dp)
                 )
 
-                // Scrollable LazyColumn for entries
-                LazyColumn(
+                Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth()
+                        .weight(0.85f)
                 ) {
+
                     items(entries) { entry ->
-                        LeaderboardRow(entry)
+                        LeaderboardRow(entry, onClick = {
+                            navController.popBackStack()
+                            navController.navigate("home/${entry.score}/true")
+                        })
                     }
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                  items(entries) { entry ->
+                        LeaderboardRow(entry, onClick = {
+                            navController.popBackStack()
+                            navController.navigate("home/${entry.score}/true")
+                        })
+                    }
+                    
+                    // Gradient fade overlay
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(64.dp)
+                            .align(Alignment.TopCenter)
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color(0xFF111121),
+                                        Color(0xFF111121).copy(alpha = 0f)
+                                    ),
+                                    startY = 0f,
+                                    endY = 100f
+                                )
+                            )
+                    )
                 }
             }
         }
     }
 }
-
 @Composable
-private fun LeaderboardRow(entry: LeaderboardEntry) {
+private fun LeaderboardRow(entry: LeaderboardEntry, onClick: () -> Unit) {
     val rowModifier = Modifier
         .fillMaxWidth()
-        .padding(vertical = 6.dp)
+        .padding(vertical = 8.dp)
+        .clickable { onClick() } // Add click listener
 
     if (entry.isCurrentUser) {
         Box(
             modifier = rowModifier
-                .clip(RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(16.dp))
                 .background(
                     brush = Brush.horizontalGradient(
-                        colors = listOf(Color(0xFF6A5ACD), Color(0xFF483D8B))
+                        colors = listOf(Color(0xFF7B68EE), Color(0xFF483D8B))
                     )
                 )
-                .padding(16.dp)
+                .padding(vertical = 20.dp, horizontal = 16.dp)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.height(56.dp)
+            ) {
                 Text(
                     text = entry.rank.toString(),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
+                    fontSize = 20.sp,
                     color = Color.White,
-                    modifier = Modifier.width(32.dp)
+                    modifier = Modifier.width(40.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = entry.name,
                     fontWeight = FontWeight.SemiBold,
                     fontFamily = Philosopher,
-                    fontSize = 24.sp,
+                    fontSize = 26.sp,
                     color = Color.White,
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = entry.points.toString(),
+                    text = entry.score.toString(),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
+                    fontSize = 20.sp,
                     color = Color.White,
                     textAlign = TextAlign.End
                 )
@@ -194,37 +232,46 @@ private fun LeaderboardRow(entry: LeaderboardEntry) {
         }
     } else {
         Card(
-            shape = RoundedCornerShape(12.dp),
-            backgroundColor = Color(0xFF242447),
+            shape = RoundedCornerShape(16.dp),
+            backgroundColor = Color(0xFF343459),
+            elevation = 4.dp,
             modifier = rowModifier
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(16.dp)
+            Box(
+                modifier = Modifier
+                    .padding(vertical = 18.dp, horizontal = 16.dp)
+                    .height(56.dp)
             ) {
-                Text(
-                    text = entry.rank.toString(),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = Color.White,
-                    modifier = Modifier.width(32.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = entry.name,
-                    fontWeight = FontWeight.SemiBold,
-                    fontFamily = Philosopher,
-                    fontSize = 24.sp,
-                    color = Color.White,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = entry.points.toString(),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = Color.White,
-                    textAlign = TextAlign.End
-                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(
+                        text = entry.rank.toString(),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = Color.White,
+                        modifier = Modifier.width(40.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = entry.name,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = Philosopher,
+                        fontSize = 26.sp,
+                        color = Color.White,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = entry.score.toString(),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = Color.White,
+                        textAlign = TextAlign.End
+                    )
+                }
+
             }
         }
     }

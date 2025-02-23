@@ -52,9 +52,9 @@ fun LoaderScreen(navController: NavController) {
     LaunchedEffect(Unit) {
         delay(2000)
         val destination = if (sessionManager.getAuthToken() != null) {
-            Screen.Home.route
+            "home/0/false"
         } else {
-            Screen.Home.route
+            "home/0/false"
         }
         
         navController.navigate(destination) {

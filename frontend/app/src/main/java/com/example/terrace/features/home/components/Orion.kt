@@ -65,7 +65,7 @@ fun Orion(offsetX: Float,opacity: Float) {
     ) {
         // Draw dotted lines between specific nodes
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val stroke = Stroke(width = 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f)))
+            val stroke = Stroke(width = 2.dp.toPx())
 
             connections.forEach { (startIndex, endIndex) ->
                 val (x1, y1) = starPositions[startIndex]
@@ -76,11 +76,10 @@ fun Orion(offsetX: Float,opacity: Float) {
                 val endOffset = Offset(x2.toPx() + halfStarSize.toPx(), y2.toPx() + halfStarSize.toPx())
 
                 drawLine(
-                    color = Color.White,
+                    color = Color.White.copy(alpha = .2f),
                     start = startOffset,
                     end = endOffset,
                     strokeWidth = 2.dp.toPx(),
-                    pathEffect = stroke.pathEffect
                 )
             }
         }
