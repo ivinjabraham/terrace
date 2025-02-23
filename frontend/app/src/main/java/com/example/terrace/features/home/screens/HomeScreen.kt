@@ -30,6 +30,8 @@ import androidx.compose.material3.*
 import androidx.compose.ui.zIndex
 import android.media.MediaPlayer
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -49,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import com.example.terrace.features.home.components.Libra
 import com.example.terrace.core.navigation.Screen
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.terrace.features.home.components.Cancer
 import com.example.terrace.features.home.components.Leo
@@ -134,20 +137,22 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
     var offsetX by remember { mutableFloatStateOf(0f) }
     var direction by remember { mutableStateOf(1f) }
     // Auto-scroll effect
+    var isDragging by remember { mutableStateOf(false) }
 
 
     LaunchedEffect(Unit) {
-        Log.d("HomeScreen", "Calling fetchUsageStats")
-        usageViewModel.fetchUsageStats(context, 1)
         while (true) {
             withFrameNanos {
-                offsetX += direction * 1.5f // Adjust speed here
-                if (offsetX >= screenSize.width * 2f || offsetX <= -screenSize.width) {
-                    direction *= -1 // Reverse direction
+                if (!isDragging) { // Auto-scroll only if not dragging
+                    offsetX += direction * 1.5f // Adjust speed here
+                    if (offsetX >= screenSize.width * 2f || offsetX <= -screenSize.width) {
+                        direction *= -1 // Reverse direction
+                    }
                 }
             }
         }
     }
+
 
     val starPositions = remember(screenSize) {
         mutableStateListOf<StarData>().apply {
@@ -237,7 +242,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
                 }
                 .pointerInput(Unit) {
                     detectTransformGestures { _, pan, _, _ ->
-                        // Clamp offsetX within the range
+                        isDragging = true
                         offsetX = (offsetX + pan.x).coerceIn(
                             -screenSize.width.toFloat(),
                             screenSize.width * 2f
@@ -245,7 +250,25 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
                         Log.d("HomeScreen", "Dragging: offsetX = $offsetX")
                     }
                 }
-        )  {
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            if (event.changes.any { it.pressed }) {
+                                isDragging = true
+                                Log.d("HomeScreen", "Touch detected, resuming drag")
+                            } else {
+                                isDragging = false
+                                awaitFirstDown() // Wait for the next tap to resume dragging
+                                isDragging = true
+                                Log.d("HomeScreen", "Finger lifted, waiting for next drag")
+                            }
+                        }
+                    }
+                }
+        )
+
+        {
             // Background gradients (Starry Sky)
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawRect(
