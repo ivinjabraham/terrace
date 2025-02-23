@@ -15,6 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.terrace.R
+import androidx.compose.ui.graphics.BlendMode
 
 @Composable
 fun BigDipper(offsetX: Float, opacity: Float) {
@@ -52,7 +53,9 @@ fun BigDipper(offsetX: Float, opacity: Float) {
     ) {
         // Draw dotted lines between nodes
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val stroke = Stroke(width = 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f)))
+            val stroke = Stroke(
+                width = 2.dp.toPx(), 
+            )
 
             connections.forEach { (startIndex, endIndex) ->
                 val (x1, y1) = starPositions[startIndex]
@@ -62,11 +65,10 @@ fun BigDipper(offsetX: Float, opacity: Float) {
                 val endOffset = Offset(x2.toPx() + halfStarSize.toPx(), y2.toPx() + halfStarSize.toPx())
 
                 drawLine(
-                    color = Color.White,
+                    color = Color.White.copy(alpha = 0.2f),
                     start = startOffset,
                     end = endOffset,
                     strokeWidth = 2.dp.toPx(),
-                    pathEffect = stroke.pathEffect
                 )
             }
         }
