@@ -1,14 +1,17 @@
 package com.example.terrace.core.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+
+import androidx.compose.ui.platform.LocalContext
+
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.ui.platform.LocalContext
+import com.example.terrace.features.stats.model.UsageViewModel
+
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -16,13 +19,13 @@ import dagger.hilt.components.SingletonComponent
 
 import com.example.terrace.features.auth.screens.LoginScreen
 import com.example.terrace.features.auth.screens.RegisterScreen
-import com.example.terrace.features.leaderboard.LeaderboardScreen
+import com.example.terrace.features.leaderboard.screens.LeaderboardScreen
 import com.example.terrace.features.home.screens.HomeScreen
-import com.example.terrace.features.stats.UsageScreen
+import com.example.terrace.features.stats.screen.UsageScreen
 import com.example.terrace.features.home.screens.LoaderScreen
 import com.example.terrace.core.auth.SessionManager
 
-// Define all screens
+
 sealed class Screen(val route: String) {
     object Login : Screen("login")
     object Register : Screen("register")
@@ -39,7 +42,8 @@ interface SessionManagerEntryPoint {
 }
 
 @Composable
-fun NavigationGraph(navController: NavHostController) {
+
+fun NavigationGraph(navController: NavHostController, usageViewModel: UsageViewModel) {
     val context = LocalContext.current
     val sessionManager = remember {
         EntryPointAccessors.fromApplication(
@@ -54,9 +58,13 @@ fun NavigationGraph(navController: NavHostController) {
         }
         composable(Screen.Login.route) { LoginScreen(navController) }
         composable(Screen.Register.route) { RegisterScreen(navController) }
+
+        composable(Screen.Home.route) { HomeScreen(navController, usageViewModel = usageViewModel) } // Pass Context to HomeScreen
+        composable(Screen.Usage.route) { UsageScreen(context, viewModel = usageViewModel) }
+
         composable(Screen.Home.route) {
             if (sessionManager.getAuthToken() != null) {
-                HomeScreen(navController)
+                HomeScreen(navController, usageViewModel)
             } else {
                 LaunchedEffect(Unit) {
                     navController.navigate(Screen.Login.route) {
@@ -65,7 +73,7 @@ fun NavigationGraph(navController: NavHostController) {
                 }
             }
         }
-        composable(Screen.Usage.route) { UsageScreen(navController.context) }
+
         composable(Screen.Leaderboard.route) {
             if (sessionManager.getAuthToken() != null) {
                 LeaderboardScreen(navController)

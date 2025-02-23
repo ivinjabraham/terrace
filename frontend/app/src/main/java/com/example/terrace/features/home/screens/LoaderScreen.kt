@@ -54,7 +54,7 @@ fun LoaderScreen(navController: NavController) {
         val destination = if (sessionManager.getAuthToken() != null) {
             Screen.Home.route
         } else {
-            Screen.Login.route
+            Screen.Home.route
         }
         
         navController.navigate(destination) {
@@ -69,7 +69,20 @@ fun LoaderScreen(navController: NavController) {
             .background(Color(0xFF111121)),
         contentAlignment = Alignment.Center
     ) {
-        LoadingDots()
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.mipmap.boy),
+                contentDescription = "App Logo",
+                modifier = Modifier
+                    .size(100.dp)
+                    .padding(bottom = 32.dp)
+            )
+            
+            LoadingDots()
+        }
     }
 }
 

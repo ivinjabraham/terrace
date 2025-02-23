@@ -13,8 +13,8 @@ class LayoutViewModel : ViewModel() {
         _navigationEvent.value = NavigationAction.Stats
     }
 
-    fun onConstellationClick() {
-        _navigationEvent.value = NavigationAction.Constellation
+    fun onHomeClick() {
+        _navigationEvent.value = NavigationAction.Home
     }
 
     fun onLeaderboardClick() {
@@ -36,7 +36,7 @@ class LayoutViewModel : ViewModel() {
 
 sealed class NavigationAction {
     object Stats : NavigationAction()
-    object Constellation : NavigationAction()
+    object Home : NavigationAction()
     object Leaderboard : NavigationAction()
     object Previous : NavigationAction()
     object Next : NavigationAction()
