@@ -15,3 +15,7 @@ This repository contains both the frontend and backend components of Terrace:
 
 - [Frontend Documentation](./frontend/README.md)
 - [Backend Documentation](./backend/README.md)
+
+## Demo Link:
+
+https://youtube.com/shorts/-biK4VR72BY
