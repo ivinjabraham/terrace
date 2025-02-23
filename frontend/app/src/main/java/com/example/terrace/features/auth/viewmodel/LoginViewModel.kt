@@ -10,6 +10,7 @@ import com.example.terrace.features.auth.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import retrofit2.HttpException
 import javax.inject.Inject
+import com.example.terrace.core.auth.SessionManager
 
 // Define login state data class
 data class LoginState(
@@ -19,7 +20,10 @@ data class LoginState(
 )
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val authRepository: AuthRepository) : ViewModel() {
+class LoginViewModel @Inject constructor(
+    private val repository: AuthRepository,
+    private val sessionManager: SessionManager
+) : ViewModel() {
 
     private val _username = MutableStateFlow("")
     val username: StateFlow<String> = _username
@@ -41,21 +45,28 @@ class LoginViewModel @Inject constructor(private val authRepository: AuthReposit
 
     fun login() {
         viewModelScope.launch {
+            _loginState.value = LoginState(isLoading = true)
             try {
-                _loginState.value = LoginState(isLoading = true)
-                val response = authRepository.login(_username.value, _password.value)
-                
+                val response = repository.login(
+                    username = _username.value,
+                    password = _password.value
+                )
                 if (response.isSuccessful) {
-                    val token = response.body()?.token
-                    // Store token if needed
+                    // Verify the response structure matches your API
+                    val token = response.body()?.token ?: throw Exception("No token in response")
+                    sessionManager.saveAuthToken(token)
                     _loginState.value = LoginState(isSuccess = true)
                 } else {
-                    _loginState.value = LoginState(error = "Login failed: ${response.message()}")
+                    // Handle specific error codes
+                    val errorMsg = when (response.code()) {
+                        401 -> "Invalid credentials"
+                        500 -> "Server error"
+                        else -> "Login failed: ${response.code()}"
+                    }
+                    _loginState.value = LoginState(error = errorMsg)
                 }
-            } catch (e: HttpException) {
-                _loginState.value = LoginState(error = "Network error: ${e.message}")
             } catch (e: Exception) {
-                _loginState.value = LoginState(error = "Unexpected error: ${e.message}")
+                _loginState.value = LoginState(error = "Network error: ${e.message}")
             }
         }
     }

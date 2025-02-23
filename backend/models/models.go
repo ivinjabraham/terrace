@@ -16,7 +16,8 @@ type User struct {
 }
 
 type GetUser struct {
-	Username   string `json:"username"`
-	Score      int    `json:"score"`
-	ScreenTime int64  `json:"screentime"`
+	Username      string `json:"username"`
+	Score         int    `json:"score"`
+	Rank          int    `json:"rank"`
+	IsCurrentUser bool   `json:"isCurrentUser"`
 }
