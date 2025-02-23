@@ -8,7 +8,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -16,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.example.terrace.R
 
 @Composable
-fun Libra(offsetX: Float) {
+fun Libra(offsetX: Float,opacity: Float) {
     val starSize = 50.dp
     val halfStarSize = starSize / 2
 
@@ -47,6 +49,7 @@ fun Libra(offsetX: Float) {
             .fillMaxSize()
             .offset { IntOffset(offsetX.toInt(), 0) }
             .padding(16.dp)
+            .graphicsLayer( alpha = opacity)
     ) {
         // Draw dotted lines between nodes
         Canvas(modifier = Modifier.fillMaxSize()) {

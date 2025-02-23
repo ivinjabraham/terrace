@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.example.terrace.R
 
 @Composable
-fun LittleDipper(offsetX: Float) {
+fun LittleDipper(offsetX: Float,opacity: Float) {
     val starSize = 50.dp
     val halfStarSize = starSize / 2
 
@@ -50,7 +50,8 @@ fun LittleDipper(offsetX: Float) {
             .padding(16.dp)
             .graphicsLayer(
                 rotationZ = 180f,
-                transformOrigin = TransformOrigin(0.5f, 0.5f)
+                transformOrigin = TransformOrigin(0.5f, 0.5f),
+                alpha = opacity
             )
     ) {
         // Draw dotted lines between nodes
