@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.terrace.R
 import com.example.terrace.features.global.layout.screen.GlowingCommentBox
+import kotlinx.coroutines.delay
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun Orion(offsetX: Float,opacity: Float) {
@@ -96,6 +98,10 @@ fun Orion(offsetX: Float,opacity: Float) {
         }
     }
     if (showDescription) {
+        LaunchedEffect(showDescription) {
+            delay(4000) // Wait for 4 seconds
+            showDescription = false
+        }
         GlowingCommentBox(title = "Orion", description = description)
     }
 }

@@ -306,7 +306,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .offset { IntOffset((offsetX * 0.5).toInt(), 0) }
+                        .offset { IntOffset((offsetX * 0.35).toInt(), 0) }
                 ) {
                     starPositions.filter { it.sizeCategory == StarSizeCategory.SMALL }
                         .forEach { star ->
@@ -318,7 +318,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .offset { IntOffset((offsetX * 0.7).toInt(), 0) }
+                        .offset { IntOffset((offsetX * 0.55).toInt(), 0) }
                 ) {
                     starPositions.filter { it.sizeCategory == StarSizeCategory.MEDIUM }
                         .forEach { star ->
@@ -330,7 +330,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .offset { IntOffset((offsetX * 0.9).toInt(), 0) }
+                        .offset { IntOffset((offsetX * 0.75).toInt(), 0) }
                 ) {
                     starPositions.filter { it.sizeCategory == StarSizeCategory.LARGE }
                         .forEach { star ->

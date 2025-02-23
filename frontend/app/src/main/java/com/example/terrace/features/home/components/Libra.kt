@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.terrace.features.global.layout.screen.GlowingCommentBox
 import com.example.terrace.R
+import kotlinx.coroutines.delay
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun Libra(offsetX: Float, opacity: Float) {
@@ -90,6 +92,10 @@ fun Libra(offsetX: Float, opacity: Float) {
         }
     }
     if (showDescription) {
+        LaunchedEffect(showDescription) {
+            delay(5000) // Wait for 5 seconds
+            showDescription = false
+        }
         GlowingCommentBox(title = "Libra", description = description)
     }
 }
