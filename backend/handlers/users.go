@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetLeaderboard(w http.ResponseWriter, r *http.Request) {
 	// Get current user from context
 	currentUser := r.Context().Value(middleware.UsernameKey).(string)
 
@@ -29,9 +29,9 @@ func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map to response model with rank and current user check
-	response := make([]models.GetUser, len(users))
+	response := make([]models.LeaderboardEntry, len(users))
 	for i, u := range users {
-		response[i] = models.GetUser{
+		response[i] = models.LeaderboardEntry{
 			Username:      u.Username,
 			Score:         u.Score,
 			Rank:          i + 1,

@@ -15,7 +15,7 @@ type User struct {
 	ScreenTime int64              `bson:"screentime"` // in milliseconds
 }
 
-type GetUser struct {
+type LeaderboardEntry struct {
 	Username      string `json:"username"`
 	Score         int    `json:"score"`
 	Rank          int    `json:"rank"`
