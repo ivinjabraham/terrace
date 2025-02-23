@@ -219,7 +219,6 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
                     titleContentColor = Color.White
                 )
             )
-            LayoutComponent(viewModel = viewModel(), navController = navController)
         }
         // Starry Sky Content – padded so the gradient doesn't extend into the status bar area0x110088FF
         Box(
