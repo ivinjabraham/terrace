@@ -11,58 +11,60 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.terrace.R
+import com.example.terrace.features.home.viewmodel.LayoutViewModel
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.navigation.NavController
+import com.example.terrace.features.home.viewmodel.NavigationAction
 
 @Composable
-fun LayoutComponent(
-    onStatsClick: () -> Unit = {},
-    onConstellationClick: () -> Unit = {},
-    onLeaderboardClick: () -> Unit = {},
-    onPrevConstellation: () -> Unit = {},
-    onNextConstellation: () -> Unit = {}
-) {
+fun LayoutComponent(navController: NavController, viewModel: LayoutViewModel) {
+    val navigationEvent by viewModel.navigationEvent.observeAsState()
+
+    // Observe navigation events
+    LaunchedEffect(navigationEvent) {
+        when (navigationEvent) {
+            NavigationAction.Stats -> navController.navigate("stats")
+            NavigationAction.Constellation -> navController.navigate("constellation")
+            NavigationAction.Leaderboard -> navController.navigate("leaderboard")
+            NavigationAction.Previous -> {} // Handle previous action
+            NavigationAction.Next -> {} // Handle next action
+            null -> {} // Do nothing
+            else -> {}
+        }
+        viewModel.resetNavigationEvent() // Reset navigation event after handling
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        Color.Black.copy(alpha = 0.8f), // Dark at the top
-                        Color.Transparent,               // Fully transparent in the center
                         Color.Transparent,
                         Color.Transparent,
                         Color.Transparent,
                         Color.Transparent,
-                        Color.Black.copy(alpha = 0.8f)  // Dark at the bottom
+                        Color.Transparent,
+                        Color.Black.copy(alpha = 0.8f)
                     )
                 )
             )
     ) {
-        BottomNavBar(
-            onStatsClick = onStatsClick,
-            onConstellationClick = onConstellationClick,
-            onLeaderboardClick = onLeaderboardClick,
-            onPrevConstellation = onPrevConstellation,
-            onNextConstellation = onNextConstellation
-        )
+        BottomNavBar(viewModel)
     }
 }
 
 @Composable
-fun BottomNavBar(
-    onStatsClick: () -> Unit = {},
-    onConstellationClick: () -> Unit = {},
-    onLeaderboardClick: () -> Unit = {},
-    onPrevConstellation: () -> Unit = {},
-    onNextConstellation: () -> Unit = {}
-) {
+fun BottomNavBar(viewModel: LayoutViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = 18.dp), // Add padding to the navigation bar
+            .padding(bottom = 18.dp),
         verticalArrangement = Arrangement.Bottom
     ) {
         BottomNavigation(
-            backgroundColor = Color.Transparent, // Keep it fully transparent
+            backgroundColor = Color.Transparent,
             contentColor = Color.Transparent,
             elevation = 0.dp
         ) {
@@ -70,35 +72,35 @@ fun BottomNavBar(
                 icon = { Icon(painterResource(R.drawable.ic_arrow_left), contentDescription = "Previous", modifier = Modifier.size(26.dp), tint = Color.White) },
                 label = { Text("Prev", fontSize = 8.sp, color = Color.White) },
                 selected = false,
-                onClick = onPrevConstellation
+                onClick = { viewModel.onPrevConstellation() }
             )
 
             BottomNavigationItem(
                 icon = { Icon(painterResource(R.drawable.ic_stats), contentDescription = "Stats", modifier = Modifier.size(26.dp), tint = Color.White ) },
                 label = { Text("Stats", fontSize = 8.sp, color = Color.White) },
                 selected = false,
-                onClick = onStatsClick
+                onClick = { viewModel.onStatsClick() }
             )
 
             BottomNavigationItem(
                 icon = { Icon(painterResource(R.drawable.ic_constellation), contentDescription = "Constellation", modifier = Modifier.size(26.dp), tint = Color.White) },
                 label = { Text("Constellation", fontSize = 8.sp, color = Color.White) },
                 selected = false,
-                onClick = onConstellationClick
+                onClick = { viewModel.onConstellationClick() }
             )
 
             BottomNavigationItem(
                 icon = { Icon(painterResource(R.drawable.ic_leaderboard), contentDescription = "Leaderboard", modifier = Modifier.size(26.dp), tint = Color.White) },
                 label = { Text("Leaderboard", fontSize = 8.sp, color = Color.White) },
                 selected = false,
-                onClick = onLeaderboardClick
+                onClick = { viewModel.onLeaderboardClick() }
             )
 
             BottomNavigationItem(
                 icon = { Icon(painterResource(R.drawable.ic_arrow_right), contentDescription = "Next", modifier = Modifier.size(26.dp), tint = Color.White) },
                 label = { Text("Next", fontSize = 8.sp, color = Color.White) },
                 selected = false,
-                onClick = onNextConstellation
+                onClick = { viewModel.onNextConstellation() }
             )
         }
     }

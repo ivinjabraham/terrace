@@ -29,18 +29,37 @@ import android.util.Log
 import androidx.compose.material3.*
 import androidx.compose.ui.zIndex
 import android.media.MediaPlayer
+import androidx.compose.foundation.background
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
-import com.example.terrace.features.home.components.BottomNavBar
+import androidx.lifecycle.viewmodel.compose.viewModel
+
+import com.example.terrace.features.home.components.LayoutComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController) {
     var screenSize by remember { mutableStateOf(IntSize.Zero) }
     val density = LocalDensity.current
+
+
     val starCount = 100
     val clusterCount = 10
 
-    var offsetX by remember { mutableStateOf(0f) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var direction by remember { mutableStateOf(1f) } //
+    // Auto-scroll effect
+    LaunchedEffect(Unit) {
+        while (true) {
+            withFrameNanos {
+                offsetX += direction * 2f // Adjust speed here
+                if (offsetX >= screenSize.width * 2f || offsetX <= -screenSize.width) {
+                    direction *= -1 // Reverse direction
+                }
+            }
+        }
+    }
+
 
     val starPositions = remember(screenSize) {
         mutableStateListOf<StarData>().apply {
@@ -68,11 +87,11 @@ fun HomeScreen(navController: NavController) {
                     repeat(clusterSize) {
                         val angle = Random.nextFloat() * 360f
                         val distance = Random.nextInt(90, 200).toFloat()
-                        val offsetX = (clusterCenter.x + distance * kotlin.math.cos(angle)).coerceIn(-screenSize.width.toFloat(), screenSize.width.toFloat() * 2)
-                        val offsetY = (clusterCenter.y + distance * kotlin.math.sin(angle)).coerceIn(0f, screenSize.height.toFloat())
+                        val coffsetX = (clusterCenter.x + distance * kotlin.math.cos(angle)).coerceIn(-screenSize.width.toFloat(), screenSize.width.toFloat() * 2)
+                        val coffsetY = (clusterCenter.y + distance * kotlin.math.sin(angle)).coerceIn(0f, screenSize.height.toFloat())
                         add(
                             StarData(
-                                position = Offset(offsetX, offsetY),
+                                position = Offset(coffsetX, coffsetY),
                                 size = Random.nextInt(10, 40).dp,
                                 rotation = Random.nextFloat() * 360f,
                                 twinkleSpeed = Random.nextInt(200, 800),
@@ -101,28 +120,23 @@ fun HomeScreen(navController: NavController) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Transparent Top Bar
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Transparent)
+                .padding(WindowInsets.ime.asPaddingValues())
+                .zIndex(1f),
+            horizontalAlignment = Alignment.CenterHorizontally // Centers all children horizontally
+        ) {
             TopAppBar(
-                title = {
-                    Text("Terrace")
-                },
-                actions = {
-                    // Add score to the right
-                    Text(
-                        text = "Score: 100", // Replace 100 with your dynamic score
-                        color = Color.White,
-                        modifier = Modifier.padding(end = 16.dp) // Add padding to the right
-                    )
-                },
+                title = { Text("Terrace") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.hsv(0f, 0f, 0f, 0.2f),  // Transparent background
-                    titleContentColor = Color.White // Title color
-                ),
-                modifier = Modifier.zIndex(1f) // Ensure TopAppBar stays above other content
+                    containerColor = Color.Transparent,
+                    titleContentColor = Color.White
+                )
             )
-            BottomNavBar()
+            LayoutComponent(viewModel = viewModel(), navController = navController)
         }
-
         // Starry Sky Content
         Box(
             modifier = Modifier
@@ -135,7 +149,10 @@ fun HomeScreen(navController: NavController) {
                 .pointerInput(Unit) {
                     detectTransformGestures { _, pan, _, _ ->
                         // Clamp offsetX within the range
-                        offsetX = (offsetX + pan.x).coerceIn(-screenSize.width.toFloat(), screenSize.width * 2f)
+                        offsetX = (offsetX + pan.x).coerceIn(
+                            -screenSize.width.toFloat(),
+                            screenSize.width * 2f
+                        )
                         Log.d("HomeScreen", "Dragging: offsetX = $offsetX")
                     }
                 }
@@ -176,7 +193,7 @@ fun HomeScreen(navController: NavController) {
                         .offset { IntOffset((offsetX * 0.5).toInt(), 0) } // Slower movement
                 ) {
                     starPositions.filter { it.sizeCategory == StarSizeCategory.SMALL }.forEach { star ->
-                        renderStar(star, density, twinkleAlpha = Random.nextFloat())
+                        RenderStar(star, density, twinkleAlpha = Random.nextFloat())
                     }
                 }
 
@@ -187,7 +204,7 @@ fun HomeScreen(navController: NavController) {
                         .offset { IntOffset((offsetX * 0.7).toInt(), 0) } // Moderate movement
                 ) {
                     starPositions.filter { it.sizeCategory == StarSizeCategory.MEDIUM }.forEach { star ->
-                        renderStar(star, density, twinkleAlpha = Random.nextFloat())
+                        RenderStar(star, density, twinkleAlpha = Random.nextFloat())
                     }
                 }
 
@@ -198,7 +215,7 @@ fun HomeScreen(navController: NavController) {
                         .offset { IntOffset((offsetX * 0.9).toInt(), 0) } // Fastest movement
                 ) {
                     starPositions.filter { it.sizeCategory == StarSizeCategory.LARGE }.forEach { star ->
-                        renderStar(star, density, twinkleAlpha = Random.nextFloat())
+                        RenderStar(star, density, twinkleAlpha = Random.nextFloat())
                     }
                 }
             }
@@ -232,7 +249,7 @@ fun classifyStarBySize(size: Dp): StarSizeCategory {
 }
 
 @Composable
-fun renderStar(star: StarData, density: Density, twinkleAlpha: Float) {
+fun RenderStar(star: StarData, density: Density, twinkleAlpha: Float) {
     val starImage: Painter = painterResource(id = star.drawableRes)
 
     val twinkleAlphaAnimation by animateFloatAsState(

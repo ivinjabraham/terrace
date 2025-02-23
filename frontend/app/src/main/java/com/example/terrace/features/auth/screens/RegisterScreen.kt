@@ -59,15 +59,12 @@ fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewMode
                 style = MaterialTheme.typography.h4,
                 fontWeight = FontWeight.Bold
             )
-            
             Text(
                 text = "Sign up to get started",
                 style = MaterialTheme.typography.subtitle1,
                 color = MaterialTheme.colors.onBackground.copy(alpha = 0.6f)
             )
-
             Spacer(modifier = Modifier.height(32.dp))
-
             OutlinedTextField(
                 value = username,
                 onValueChange = { viewModel.updateUsername(it) },
@@ -81,7 +78,6 @@ fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewMode
                 ),
                 isError = registerState.error != null
             )
-
             OutlinedTextField(
                 value = password,
                 onValueChange = { viewModel.updatePassword(it) },
@@ -114,7 +110,6 @@ fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewMode
                 ),
                 isError = registerState.error != null
             )
-
             AnimatedVisibility(
                 visible = registerState.error != null,
                 enter = fadeIn() + expandVertically(),
@@ -127,9 +122,7 @@ fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewMode
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-
             Spacer(modifier = Modifier.height(16.dp))
-
             Button(
                 onClick = { viewModel.register() },
                 modifier = Modifier
@@ -155,7 +148,6 @@ fun RegisterScreen(navController: NavHostController, viewModel: RegisterViewMode
                     )
                 }
             }
-
             TextButton(
                 onClick = { navController.navigate("login") },
                 modifier = Modifier.fillMaxWidth()
