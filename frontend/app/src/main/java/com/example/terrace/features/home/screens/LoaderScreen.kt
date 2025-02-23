@@ -69,7 +69,20 @@ fun LoaderScreen(navController: NavController) {
             .background(Color(0xFF111121)),
         contentAlignment = Alignment.Center
     ) {
-        LoadingDots()
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.mipmap.boy),
+                contentDescription = "App Logo",
+                modifier = Modifier
+                    .size(100.dp)
+                    .padding(bottom = 32.dp)
+            )
+            
+            LoadingDots()
+        }
     }
 }
 
