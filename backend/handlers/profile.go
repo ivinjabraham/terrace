@@ -1,41 +1,65 @@
 package handlers
 
 import (
+	"backend/middleware"
 	"backend/models"
-	"context"
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func ProfileHandler(w http.ResponseWriter, r *http.Request) {
-	username := r.Header.Get("X-Username")
+func (h *Handler) Profile(w http.ResponseWriter, r *http.Request) {
+	username := r.Context().Value(middleware.ContextKey("username")).(string)
 
 	var user models.User
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	err := models.UsersCollection.FindOne(ctx, bson.M{"username": username}).Decode(&user)
+	err := h.db.Collection.FindOne(r.Context(), bson.M{"username": username}).Decode(&user)
 	if err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
 
-	type UserResponse struct {
-		UserID    primitive.ObjectID `json:"user_id"`
-		CreatedAt time.Time          `json:"created_at"`
-		Username  string             `json:"username"`
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"username":   user.Username,
+		"score":      user.Score,
+		"joined_at":  user.CreatedAt,
+		"screentime": user.ScreenTime,
+	})
+}
+
+func (h *Handler) UpdateScreenTime(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
 	}
 
-	userResponse := UserResponse{
-		UserID:    user.UserID,
-		CreatedAt: user.CreatedAt,
-		Username:  user.Username,
+	username := r.Context().Value(middleware.ContextKey("username")).(string)
+
+	var body struct {
+		ScreenTime int64 `json:"screentime"`
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(userResponse)
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	result, err := h.db.Collection.UpdateOne(
+		r.Context(),
+		bson.M{"username": username},
+		bson.M{"$set": bson.M{"screentime": body.ScreenTime}},
+	)
+
+	if err != nil {
+		http.Error(w, "Failed to update screentime", http.StatusInternalServerError)
+		return
+	}
+
+	if result.MatchedCount == 0 {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"status": "updated"})
 }

@@ -50,13 +50,35 @@ import androidx.compose.ui.unit.dp
 
 
 import com.example.terrace.features.home.components.Libra
-import com.example.terrace.features.stats.model.UsageViewModel
-
+import com.example.terrace.core.auth.SessionManager
+import com.example.terrace.core.navigation.Screen
+import androidx.compose.runtime.LaunchedEffect
+import androidx.hilt.navigation.compose.hiltViewModel
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel) {
+fun HomeScreen(navController: NavController) {
     val context = LocalContext.current
+    val sessionManager = remember {
+        EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            SessionManagerEntryPoint::class.java
+        ).sessionManager()
+    }
+
+    LaunchedEffect(Unit) {
+        if (sessionManager.getAuthToken() == null) {
+            navController.navigate(Screen.Login.route) {
+                popUpTo(Screen.Loader.route)
+            }
+        }
+    }
+
+
     var screenSize by remember { mutableStateOf(IntSize.Zero) }
     val density = LocalDensity.current
 

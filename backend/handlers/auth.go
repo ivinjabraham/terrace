@@ -1,98 +1,109 @@
 package handlers
 
 import (
-    "context"
-    "errors"
-    "time"
+	"backend/db"
+	"backend/models"
+	"backend/utils"
+	"encoding/json"
+	"errors"
+	"net/http"
+	"time"
 
-    "github.com/golang-jwt/jwt/v5"
-    "go.mongodb.org/mongo-driver/bson"
-    "go.mongodb.org/mongo-driver/bson/primitive"
-    "go.mongodb.org/mongo-driver/mongo"
-    "golang.org/x/crypto/bcrypt"
-    "backend/config"
-    "backend/models"
+	"github.com/golang-jwt/jwt/v5"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var jwtSecret = config.JWT_SECRET
-
-type Claims struct {
-    Username string `json:"username"`
-    jwt.RegisteredClaims
+type Handler struct {
+	db        *db.Database
+	jwtSecret string
 }
 
-func hashPassword(password string) (string, error) {
-    hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-    return string(hash), err
+func NewHandler(db *db.Database, jwtSecret string) *Handler {
+	return &Handler{
+		db:        db,
+		jwtSecret: jwtSecret,
+	}
 }
 
-func checkPassword(hash, password string) bool {
-    return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)) == nil
+func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var creds struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	hashedPass, err := utils.HashPassword(creds.Password)
+	if err != nil {
+		http.Error(w, "Failed to hash password", http.StatusInternalServerError)
+		return
+	}
+
+	_, err = h.db.Collection.InsertOne(r.Context(), bson.M{
+		"username":   creds.Username,
+		"hashedpass": hashedPass,
+		"created_at": time.Now(),
+		"score":      100,
+		"screentime": 0,
+	})
+
+	if mongo.IsDuplicateKeyError(err) {
+		http.Error(w, "Username already exists", http.StatusConflict)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]string{"status": "registered"})
 }
 
-func generateToken(username string) (string, error) {
-    expirationTime := time.Now().Add(24 * time.Hour)
-    claims := &Claims{
-        Username: username,
-        RegisteredClaims: jwt.RegisteredClaims{
-            ExpiresAt: jwt.NewNumericDate(expirationTime),
-        },
-    }
+func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
+	var creds struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
 
-    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-    return token.SignedString(jwtSecret)
-}
+	if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
+		http.Error(w, "Invalid credentials", http.StatusBadRequest)
+		return
+	}
 
-func RegisterUser(ctx context.Context, collection *mongo.Collection, username, password string) error {
-    filter := bson.M{"username": username}
-    var existingUser models.User
+	var user models.User
+	err := h.db.Collection.FindOne(r.Context(), bson.M{"username": creds.Username}).Decode(&user)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			http.Error(w, "Username not found", http.StatusUnauthorized)
+			return
+		}
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
 
-    err := collection.FindOne(ctx, filter).Decode(&existingUser)
-    if err == nil {
-        return errors.New("User already exists")
-    }
+	if !utils.CheckPassword(user.HashedPass, creds.Password) {
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
 
-    hashedPass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-    if err != nil {
-        return err
-    }
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"username": creds.Username,
+		"exp":      time.Now().Add(24 * time.Hour).Unix(),
+	})
 
-    user := models.User{
-        UserID:     primitive.NewObjectID(),
-        CreatedAt:  time.Now(),
-        Username:   username,
-        HashedPass: string(hashedPass),
-    }
+	tokenString, err := token.SignedString([]byte(h.jwtSecret))
+	if err != nil {
+		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+		return
+	}
 
-    _, err = collection.InsertOne(ctx, user)
-    return err
-}
-
-func LoginUser(ctx context.Context, collection *mongo.Collection, username, password string) (string, error) {
-    var user models.User
-    filter := bson.M{"username": username}
-
-    err := collection.FindOne(ctx, filter).Decode(&user)
-    if err != nil {
-        return "", errors.New("User not found")
-    }
-
-    if !checkPassword(user.HashedPass, password) {
-        return "", errors.New("Incorrect password")
-    }
-
-    return generateToken(username)
-}
-
-func ValidateToken(tokenString string) (*Claims, error) {
-    claims := &Claims{}
-    token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-        return jwtSecret, nil
-    })
-
-    if err != nil || !token.Valid {
-        return nil, errors.New("Invalid token")
-    }
-
-    return claims, nil
+	json.NewEncoder(w).Encode(map[string]string{
+		"token": tokenString,
+	})
 }

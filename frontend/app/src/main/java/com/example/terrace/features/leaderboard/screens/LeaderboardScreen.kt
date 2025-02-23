@@ -22,48 +22,127 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.material3.Text
 import androidx.navigation.NavController
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import kotlinx.coroutines.delay
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.terrace.features.leaderboard.model.LeaderboardViewModel
+import javax.inject.Inject
 
 import com.example.terrace.R
 import com.example.terrace.features.leaderboard.LeaderboardEntry
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import android.util.Log
+import com.example.terrace.core.auth.SessionManager
+import com.example.terrace.core.navigation.Screen
+import androidx.compose.ui.platform.LocalContext
+
+
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 
 val Philosopher = FontFamily(
     Font(R.font.philosopher, FontWeight.Normal)
 )
 
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface SessionManagerEntryPoint {
+    fun sessionManager(): SessionManager
+}
+
 @Composable
-fun LeaderboardScreen(entries: List<LeaderboardEntry>, navController: NavController) {
-    Column(
+fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewModel = hiltViewModel()) {
+    val context = LocalContext.current
+    val sessionManager = remember {
+        EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            SessionManagerEntryPoint::class.java
+        ).sessionManager()
+    }
+
+    LaunchedEffect(Unit) {
+        if (sessionManager.getAuthToken() == null) {
+            navController.navigate(Screen.Login.route) {
+                popUpTo(Screen.Loader.route)
+            }
+        }
+    }
+
+    val entries by viewModel.entries
+    val isLoading by viewModel.isLoading
+    val error by viewModel.error
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF111121)) // Background color
-            .graphicsLayer(alpha = 0.7f) // Slight transparency
-            .drawBehind {
-                drawRect(
-                    color = Color.Black.copy(alpha = 0.2f) // Semi-transparent overlay for blur effect
+            .background(Color(0xFF111121))
+    ) {
+        if (isLoading) {
+            // Show loading indicator
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                CircularProgressIndicator(color = Color.White)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Loading Leaderboard...",
+                    color = Color.White,
+                    fontFamily = Philosopher
                 )
             }
-            .padding(top = 36.dp)
-    ) {
-        Text(
-            text = "Leaderboards",
-            fontFamily = Philosopher,
-            fontWeight = FontWeight.Bold,
-            fontSize = 30.sp,
-            color = Color.White,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 10.dp)
-        )
+        } else if (error != null) {
+            // Show error message
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "Error: $error", color = Color.Red)
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = { /* Retry logic */ }) {
+                    Text("Retry")
+                }
+            }
+        } else {
+            // Show actual content
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFF111121))
+                    .padding(top = 36.dp)
+            ) {
+                Text(
+                    text = "Leaderboards",
+                    fontFamily = Philosopher,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 30.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp)
+                )
 
-        // Scrollable LazyColumn for entries
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-        ) {
-            items(entries) { entry ->
-                LeaderboardRow(entry)
+                // Scrollable LazyColumn for entries
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    items(entries) { entry ->
+                        LeaderboardRow(entry)
+                    }
+                }
             }
         }
     }
@@ -149,3 +228,4 @@ private fun LeaderboardRow(entry: LeaderboardEntry) {
         }
     }
 }
+

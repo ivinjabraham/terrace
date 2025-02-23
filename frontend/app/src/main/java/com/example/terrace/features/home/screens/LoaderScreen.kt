@@ -1,4 +1,4 @@
-package com.example.terrace.features.splash
+package com.example.terrace.features.home.screens
 
 import android.os.Handler
 import android.os.Looper
@@ -21,61 +21,55 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.delay
 import com.example.terrace.R
+import com.example.terrace.core.auth.SessionManager
+import com.example.terrace.core.navigation.Screen
+import androidx.compose.runtime.LaunchedEffect
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
+
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface SessionManagerEntryPoint {
+    fun sessionManager(): SessionManager
+}
 
 @Composable
 fun LoaderScreen(navController: NavController) {
-    var isVisible by remember { mutableStateOf(true) }
-
-    // Fade-out animation
-    val alpha by animateFloatAsState(
-        targetValue = if (isVisible) 1f else 0f,
-        animationSpec = tween(durationMillis = 1000, easing = LinearEasing)
-    )
-
-    // Navigate after 3 seconds
-    LaunchedEffect(Unit) {
-        delay(3000)
-        isVisible = false
-        delay(1000) // Wait for fade-out
-        navController.navigate("home") {
-            popUpTo("loader") { inclusive = true } // Remove LoaderScreen from stack
-        }
+    val context = LocalContext.current
+    val sessionManager = remember {
+        EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            SessionManagerEntryPoint::class.java
+        ).sessionManager()
     }
 
-    if (isVisible) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Gray)
-                .alpha(alpha), // Apply fade-out animation
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                // App Logo
-                Image(
-                    painter = painterResource(id = R.mipmap.boy), // Your PNG logo
-                    contentDescription = "App Logo",
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(RoundedCornerShape(percent = 50))
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+    var isVisible by remember { mutableStateOf(true) }
 
-                // App Name
-                Text(
-                    text = "Terrace",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Loading Animation (Dots)
-                LoadingDots()
-            }
+    LaunchedEffect(Unit) {
+        delay(2000)
+        val destination = if (sessionManager.getAuthToken() != null) {
+            Screen.Home.route
+        } else {
+            Screen.Login.route
         }
+        
+        navController.navigate(destination) {
+            popUpTo(Screen.Loader.route) { inclusive = true }
+        }
+        isVisible = false
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF111121)),
+        contentAlignment = Alignment.Center
+    ) {
+        LoadingDots()
     }
 }
 
