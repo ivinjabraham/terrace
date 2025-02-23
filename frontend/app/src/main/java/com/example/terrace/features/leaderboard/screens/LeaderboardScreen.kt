@@ -39,6 +39,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.runtime.rememberCoroutineScope
 import com.example.terrace.core.auth.SessionManager
 import com.example.terrace.core.navigation.Screen
 import androidx.compose.ui.platform.LocalContext
@@ -49,6 +50,9 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.foundation.layout.statusBars
 
 val Philosopher = FontFamily(
     Font(R.font.philosopher, FontWeight.Normal)
@@ -70,6 +74,10 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
             SessionManagerEntryPoint::class.java
         ).sessionManager()
     }
+
+    val isNavigating = remember { mutableStateOf(false) }
+    val username = remember { mutableStateOf("User") }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         if (sessionManager.getAuthToken() == null) {
@@ -163,8 +171,14 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
                     ) {
                         items(entries) { entry ->
                             LeaderboardRow(entry, onClick = {
-                                navController.popBackStack()
-                                navController.navigate("home/${entry.score}/true")
+                                username.value = entry.name
+                                isNavigating.value = true
+                                scope.launch {
+                                    delay(2000) // 2 second delay
+                                    navController.popBackStack()
+                                    navController.navigate("home/${entry.score}/true")
+                                    isNavigating.value = false
+                                }
                             })
                         }
                     }
@@ -182,6 +196,29 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
                                     )
                                 )
                             )
+                    )
+                }
+            }
+        }
+        
+        // Move this overlay to root Box level
+        if (isNavigating.value) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.8f))
+                    .systemBarsPadding()
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    LoadingDots()
+                    Text(
+                        text = "Loading ${username.value}'s Sky...",
+                        color = Color.White,
+                        fontFamily = Philosopher
                     )
                 }
             }
