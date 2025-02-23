@@ -1,5 +1,6 @@
 package com.example.terrace.features.home.screens
 
+import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
 import androidx.compose.animation.core.*
@@ -37,6 +38,7 @@ interface SessionManagerEntryPoint {
     fun sessionManager(): SessionManager
 }
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun LoaderScreen(navController: NavController) {
     val context = LocalContext.current
@@ -81,7 +83,41 @@ fun LoaderScreen(navController: NavController) {
                     .padding(bottom = 32.dp)
             )
             
+            Text(
+                text = "Terrace",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            
             LoadingDots()
+        }
+
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 64.dp),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            val constellationFacts = remember {
+                listOf(
+                    "There are 88 officially recognized constellations",
+                    "The largest constellation is Hydra, covering 3.16% of the night sky",
+                    "The Big Dipper is not a constellation but an asterism",
+                    "Constellations slowly change position over thousands of years",
+                    "The zodiac constellations follow the ecliptic path of the sun"
+                )
+            }
+            Text(
+                text = "Did you know?\n${constellationFacts.random()}",
+                color = Color(0xFF6D8BFF),
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(horizontal = 32.dp)
+                    .alpha(0.8f)
+            )
         }
     }
 }
