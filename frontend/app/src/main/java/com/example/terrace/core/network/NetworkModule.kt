@@ -1,5 +1,9 @@
 package com.example.terrace.core.network
 
+
+import com.example.terrace.core.network.repository.UsageRepository
+import com.example.terrace.core.network.repository.UsageRepositoryImpl
+import dagger.Binds
 import com.example.terrace.core.auth.SessionManager
 import com.example.terrace.features.leaderboard.LeaderboardRepository
 import dagger.Module
@@ -20,7 +24,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://192.168.38.29:8080")
+            .baseUrl("http://192.168.38.217:8080")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
@@ -30,6 +34,20 @@ object NetworkModule {
     fun provideAppService(retrofit: Retrofit): ApiService {
         return retrofit.create(ApiService::class.java)
     }
+
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class RepositoryModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindUsageRepository(
+        usageRepositoryImpl: UsageRepositoryImpl
+    ): UsageRepository
+}
+
 
     @Provides
     @Singleton
@@ -46,3 +64,4 @@ object NetworkModule {
         return LeaderboardRepository(apiService, sessionManager)
     }
 }
+

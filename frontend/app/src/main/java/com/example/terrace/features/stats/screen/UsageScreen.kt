@@ -1,4 +1,4 @@
-package com.example.terrace.features.stats
+package com.example.terrace.features.stats.screen
 
 import android.app.AppOpsManager
 import android.app.usage.UsageStatsManager
@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -21,23 +22,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.terrace.features.stats.model.UsageViewModel
 import kotlinx.coroutines.delay
 import java.util.Calendar
 
 @Composable
-fun UsageScreen(context: Context) {
+fun UsageScreen(context: Context, viewModel: UsageViewModel) {
     var hasPermission by remember { mutableStateOf(NoUsageComponent(context)) }
     var screenTime by remember { mutableStateOf(0L) }
     var selectedDays by remember { mutableStateOf(1) }
     var appUsageStats by remember { mutableStateOf<Map<String, Long>>(emptyMap()) }
 
     LaunchedEffect(Unit) {
-        while (!hasPermission) {
-            hasPermission = NoUsageComponent(context)
-            delay(100)
-        }
+        Log.d("test", "UsageScreen: ")
         screenTime = YesUsageComponent(context, selectedDays)
         appUsageStats = getAppUsageStats(context, selectedDays)
+
+        // Send usage data to ViewModel
+        viewModel.updateUsage(screenTime)
+        Log.d("test", "UsageScreen: done")
     }
 
     Column(
@@ -60,6 +63,9 @@ fun UsageScreen(context: Context) {
                             selectedDays = days
                             screenTime = YesUsageComponent(context, days)
                             appUsageStats = getAppUsageStats(context, days)
+
+                            // Update ViewModel when selection changes
+                            viewModel.updateUsage(screenTime)
                         },
                         modifier = Modifier.padding(horizontal = 4.dp)
                     ) {
@@ -135,8 +141,10 @@ fun AppUsagePieChart(context: Context, appUsageStats: Map<String, Long>) {
                 Box(
                     modifier = Modifier
                         .size(16.dp)
-                        .background(sliceColors[index % sliceColors.size],
-                            shape = RoundedCornerShape(4.dp))
+                        .background(
+                            sliceColors[index % sliceColors.size],
+                            shape = RoundedCornerShape(4.dp)
+                        )
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
