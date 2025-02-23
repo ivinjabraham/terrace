@@ -148,13 +148,16 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = 16.dp)
+                            .padding(top = 8.dp)
                     ) {
-                  items(entries) { entry ->
-                        LeaderboardRow(entry, onClick = {
-                            navController.popBackStack()
-                            navController.navigate("home/${entry.score}/true")
-                        })
-                    // Gradient fade overlay
+                        items(entries) { entry ->
+                            LeaderboardRow(entry, onClick = {
+                                navController.popBackStack()
+                                navController.navigate("home/${entry.score}/true")
+                            })
+                        }
+                    }
+
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -165,14 +168,10 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
                                     colors = listOf(
                                         Color(0xFF09112C),
                                         Color(0x6109112C).copy(alpha = 0f)
-                                    ),
-                                    startY = 0f,
-                                    endY = 100f
                                     )
                                 )
                             )
-                        }
-                    }
+                    )
                 }
             }
         }
@@ -183,8 +182,8 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
 fun LeaderboardRow(entry: LeaderboardEntry, onClick: () -> Unit) {
     val rowModifier = Modifier
         .fillMaxWidth()
-        .padding(vertical = 8.dp)
-        .clickable { onClick() } // Add click listener
+        .padding(vertical = 10.dp)
+        .clickable { onClick() }
 
     if (entry.isCurrentUser) {
         Box(
@@ -195,7 +194,7 @@ fun LeaderboardRow(entry: LeaderboardEntry, onClick: () -> Unit) {
                         colors = listOf(Color(0xFF3C5596), Color(0xFF303E72))
                     )
                 )
-                .padding(vertical = 20.dp, horizontal = 16.dp)
+                .padding(vertical = 12.dp, horizontal = 16.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -235,7 +234,7 @@ fun LeaderboardRow(entry: LeaderboardEntry, onClick: () -> Unit) {
         ) {
             Box(
                 modifier = Modifier
-                    .padding(vertical = 18.dp, horizontal = 16.dp)
+                    .padding(vertical = 12.dp, horizontal = 16.dp)
                     .height(56.dp)
             ) {
 

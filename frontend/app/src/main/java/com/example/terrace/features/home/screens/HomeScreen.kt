@@ -201,7 +201,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().background(Color.Transparent)) {
         // Transparent Top Bar with status bar padding
         Column(
             modifier = Modifier
@@ -225,7 +225,6 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(WindowInsets.statusBars.asPaddingValues())
                 .onGloballyPositioned { coordinates ->
                     screenSize = IntSize(coordinates.size.width, coordinates.size.height)
                     Log.d("HomeScreen", "Screen Size: $screenSize")
