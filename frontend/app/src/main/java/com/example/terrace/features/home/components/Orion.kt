@@ -24,21 +24,24 @@ fun Orion(offsetX: Float) {
         50.dp to 50.dp,   // 0: Top-left
         150.dp to 80.dp,  // 1: Slightly right
         100.dp to 200.dp, // 2: Middle-left
-        250.dp to 250.dp, // 3: Center
-        300.dp to 100.dp, // 4: Top-right
-        200.dp to 350.dp, // 5: Bottom-middle
-        120.dp to 400.dp  // 6: Bottom-left
+        215.dp to 265.dp, // 3: Center
+        220.dp to 250.dp, // 4: Top-right
+        200.dp to 280.dp, // 5: Bottom-middle
+        200.dp to 400.dp,
+        330.dp to 320.dp // 6: Bottom-left
     )
 
     // Define explicit node connections (index pairs)
     val connections = listOf(
         0 to 1,
-        1 to 3,
+        1 to 4,
         3 to 4,
         3 to 5,
         5 to 6,
-        2 to 3,
-        2 to 0
+        2 to 5,
+        2 to 0,
+        6 to 7,
+        7 to 4
     )
 
     Box(
