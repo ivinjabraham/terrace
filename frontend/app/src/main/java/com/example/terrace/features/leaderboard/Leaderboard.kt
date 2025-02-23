@@ -22,47 +22,124 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.material3.Text
 import androidx.navigation.NavController
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import kotlinx.coroutines.delay
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.terrace.features.leaderboard.LeaderboardViewModel
+import javax.inject.Inject
 
 import com.example.terrace.R
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import android.util.Log
+import com.example.terrace.core.auth.SessionManager
+import com.example.terrace.core.navigation.Screen
+import androidx.compose.ui.platform.LocalContext
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 
 val Philosopher = FontFamily(
     Font(R.font.philosopher, FontWeight.Normal)
 )
 
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface SessionManagerEntryPoint {
+    fun sessionManager(): SessionManager
+}
+
 @Composable
-fun LeaderboardScreen(entries: List<LeaderboardEntry>, navController: NavController) {
-    Column(
+fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewModel = hiltViewModel()) {
+    val context = LocalContext.current
+    val sessionManager = remember {
+        EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            SessionManagerEntryPoint::class.java
+        ).sessionManager()
+    }
+
+    LaunchedEffect(Unit) {
+        if (sessionManager.getAuthToken() == null) {
+            navController.navigate(Screen.Login.route) {
+                popUpTo(Screen.Loader.route)
+            }
+        }
+    }
+
+    val entries by viewModel.entries
+    val isLoading by viewModel.isLoading
+    val error by viewModel.error
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF111121)) // Background color
-            .graphicsLayer(alpha = 0.7f) // Slight transparency
-            .drawBehind {
-                drawRect(
-                    color = Color.Black.copy(alpha = 0.2f) // Semi-transparent overlay for blur effect
+            .background(Color(0xFF111121))
+    ) {
+        if (isLoading) {
+            // Show loading indicator
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                CircularProgressIndicator(color = Color.White)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Loading Leaderboard...",
+                    color = Color.White,
+                    fontFamily = Philosopher
                 )
             }
-            .padding(top = 36.dp)
-    ) {
-        Text(
-            text = "Leaderboards",
-            fontFamily = Philosopher,
-            fontWeight = FontWeight.Bold,
-            fontSize = 30.sp,
-            color = Color.White,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 10.dp)
-        )
+        } else if (error != null) {
+            // Show error message
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "Error: $error", color = Color.Red)
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = { /* Retry logic */ }) {
+                    Text("Retry")
+                }
+            }
+        } else {
+            // Show actual content
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFF111121))
+                    .padding(top = 36.dp)
+            ) {
+                Text(
+                    text = "Leaderboards",
+                    fontFamily = Philosopher,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 30.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp)
+                )
 
-        // Scrollable LazyColumn for entries
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-        ) {
-            items(entries) { entry ->
-                LeaderboardRow(entry)
+                // Scrollable LazyColumn for entries
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    items(entries) { entry ->
+                        LeaderboardRow(entry)
+                    }
+                }
             }
         }
     }
@@ -144,6 +221,45 @@ private fun LeaderboardRow(entry: LeaderboardEntry) {
                     color = Color.White,
                     textAlign = TextAlign.End
                 )
+            }
+        }
+    }
+}
+
+@HiltViewModel
+class LeaderboardViewModel @Inject constructor(
+    private val repository: LeaderboardRepository,
+    private val sessionManager: SessionManager
+) : ViewModel() {
+    val entries = mutableStateOf(emptyList<LeaderboardEntry>())
+    val isLoading = mutableStateOf(true)
+    val error = mutableStateOf<String?>(null)
+
+    init {
+        loadLeaderboard()
+    }
+
+    fun loadLeaderboard() {
+        viewModelScope.launch {
+            try {
+                // Temporary debug logging
+                Log.d("Leaderboard", "Auth token: ${sessionManager.getAuthToken()}")
+                
+                val apiResponse = repository.getLeaderboard()
+                entries.value = apiResponse.mapIndexed { index, item ->
+                    LeaderboardEntry(
+                        rank = index + 1,
+                        name = item.username,
+                        points = item.score,
+                        isCurrentUser = item.isCurrentUser
+                    )
+                }
+                error.value = null
+            } catch (e: Exception) {
+                Log.e("Leaderboard", "Error loading leaderboard", e)
+                error.value = e.message ?: "Failed to load leaderboard"
+            } finally {
+                isLoading.value = false
             }
         }
     }
