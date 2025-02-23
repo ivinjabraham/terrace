@@ -54,7 +54,7 @@ fun LoaderScreen(navController: NavController) {
         val destination = if (sessionManager.getAuthToken() != null) {
             Screen.Home.route
         } else {
-            Screen.Login.route
+            Screen.Home.route
         }
         
         navController.navigate(destination) {
