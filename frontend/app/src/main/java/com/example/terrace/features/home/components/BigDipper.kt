@@ -100,7 +100,7 @@ fun BigDipper(offsetX: Float, opacity: Float) {
     }
     if (showDescription) {
         LaunchedEffect(showDescription) {
-            delay(5000) // Wait for 5 seconds
+            delay(6000) // Wait for 6 seconds
             showDescription = false
         }
         GlowingCommentBox(title = "Big Dipper", description = description)

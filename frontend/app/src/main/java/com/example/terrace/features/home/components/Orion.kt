@@ -104,7 +104,7 @@ fun Orion(offsetX: Float,opacity: Float) {
     }
     if (showDescription) {
         LaunchedEffect(showDescription) {
-            delay(4000) // Wait for 4 seconds
+            delay(6000) // Wait for 6 seconds
             showDescription = false
         }
         GlowingCommentBox(title = "Orion", description = description)
