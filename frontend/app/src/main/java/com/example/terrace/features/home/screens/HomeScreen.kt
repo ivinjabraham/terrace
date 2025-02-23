@@ -328,7 +328,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel) {
                 // Large Stars
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()0x110088FF
+                        .fillMaxSize()
                         .offset { IntOffset((offsetX * 0.9).toInt(), 0) }
                 ) {
                     starPositions.filter { it.sizeCategory == StarSizeCategory.LARGE }
