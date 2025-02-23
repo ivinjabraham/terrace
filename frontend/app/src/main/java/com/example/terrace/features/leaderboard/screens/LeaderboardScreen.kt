@@ -136,6 +136,17 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
                         .wrapContentHeight(Alignment.CenterVertically)
                         .padding(vertical = 24.dp)
                 )
+                Text(
+                    text = "Click on a user to see their sky!",
+                    fontFamily = Philosopher,
+                    fontSize = 14.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(Alignment.CenterVertically)
+                        .padding(bottom = 16.dp)
+                )
 
                 Box(
                     modifier = Modifier
