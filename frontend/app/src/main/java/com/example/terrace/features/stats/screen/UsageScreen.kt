@@ -46,15 +46,16 @@ fun UsageScreen(context: Context, viewModel: UsageViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .safeContentPadding(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (hasPermission) {
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Usage Stats", fontSize = 22.sp, color = Color.Black)
+            Text("Usage Stats", fontSize = 22.sp, color = Color.White)
             Spacer(modifier = Modifier.height(12.dp))
-            Text("Select Time Range:", fontSize = 18.sp)
+            Text("Select Time Range:", fontSize = 18.sp, color= Color.White)
             Spacer(modifier = Modifier.height(8.dp))
             Row {
                 listOf(1, 7, 10).forEach { days ->
@@ -150,7 +151,7 @@ fun AppUsagePieChart(context: Context, appUsageStats: Map<String, Long>) {
                 Text(
                     "${entry.key}: ${formatScreenTime(entry.value)} ($percentage%)",
                     fontSize = 16.sp,
-                    color = Color.Black,
+                    color = Color.White,
                     textAlign = TextAlign.Start
                 )
             }
