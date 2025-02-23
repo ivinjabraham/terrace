@@ -13,3 +13,8 @@ type User struct {
 	HashedPass string             `bson:"hashedpass"`
 	Score      int                `bson:"score"`
 }
+
+type GetUser struct {
+	Username string `json:"username"`
+	Score    int    `json:"score"`
+}

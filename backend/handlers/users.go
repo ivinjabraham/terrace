@@ -21,19 +21,13 @@ func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Remove sensitive data from response
-	type PublicUser struct {
-		Username string `json:"username"`
-		Score    int    `json:"score"`
-	}
-
-	publicUsers := make([]PublicUser, len(users))
+	Users := make([]models.GetUser, len(users))
 	for i, u := range users {
-		publicUsers[i] = PublicUser{
+		Users[i] = models.GetUser{
 			Username: u.Username,
 			Score:    u.Score,
 		}
 	}
 
-	json.NewEncoder(w).Encode(publicUsers)
+	json.NewEncoder(w).Encode(Users)
 }
