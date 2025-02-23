@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.example.terrace.features.stats.model.UsageViewModel
 import kotlinx.coroutines.delay
 import java.util.Calendar
+import java.util.TimeZone
 
 @Composable
 fun UsageScreen(context: Context, viewModel: UsageViewModel) {
@@ -33,14 +34,33 @@ fun UsageScreen(context: Context, viewModel: UsageViewModel) {
     var selectedDays by remember { mutableStateOf(1) }
     var appUsageStats by remember { mutableStateOf<Map<String, Long>>(emptyMap()) }
 
-    LaunchedEffect(Unit) {
-        Log.d("test", "UsageScreen: ")
+    // Initial load or refresh when selectedDays changes
+    LaunchedEffect(Unit, selectedDays) {
+        Log.d("test", "UsageScreen: loading usage stats")
         screenTime = YesUsageComponent(context, selectedDays)
         appUsageStats = getAppUsageStats(context, selectedDays)
-
-        // Send usage data to ViewModel
         viewModel.updateUsage(screenTime)
-        Log.d("test", "UsageScreen: done")
+        Log.d("test", "UsageScreen: usage stats loaded")
+    }
+
+    // Auto-refresh the feed at the next IST midnight
+    LaunchedEffect(selectedDays) {
+        while (true) {
+            val tz = TimeZone.getTimeZone("Asia/Kolkata")
+            val now = Calendar.getInstance(tz)
+            val tomorrow = Calendar.getInstance(tz).apply {
+                add(Calendar.DAY_OF_YEAR, 1)
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+            val delayMillis = tomorrow.timeInMillis - now.timeInMillis
+            delay(delayMillis)
+            screenTime = YesUsageComponent(context, selectedDays)
+            appUsageStats = getAppUsageStats(context, selectedDays)
+            viewModel.updateUsage(screenTime)
+        }
     }
 
     Column(
@@ -55,7 +75,7 @@ fun UsageScreen(context: Context, viewModel: UsageViewModel) {
             Spacer(modifier = Modifier.height(16.dp))
             Text("Usage Stats", fontSize = 22.sp, color = Color.White)
             Spacer(modifier = Modifier.height(12.dp))
-            Text("Select Time Range:", fontSize = 18.sp, color= Color.White)
+            Text("Select Time Range:", fontSize = 18.sp, color = Color.White)
             Spacer(modifier = Modifier.height(8.dp))
             Row {
                 listOf(1, 7, 10).forEach { days ->
@@ -64,8 +84,6 @@ fun UsageScreen(context: Context, viewModel: UsageViewModel) {
                             selectedDays = days
                             screenTime = YesUsageComponent(context, days)
                             appUsageStats = getAppUsageStats(context, days)
-
-                            // Update ViewModel when selection changes
                             viewModel.updateUsage(screenTime)
                         },
                         modifier = Modifier.padding(horizontal = 4.dp)
@@ -194,25 +212,16 @@ fun requestUsageAccess(context: Context) {
 }
 
 fun YesUsageComponent(context: Context, days: Int): Long {
+    val (startTime, endTime) = getPeriodStartEndInIST(days)
     val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-    val calendar = Calendar.getInstance()
-    val endTime = calendar.timeInMillis
-    calendar.add(Calendar.DAY_OF_MONTH, -days)
-    val startTime = calendar.timeInMillis
-
     val stats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime)
     return stats.sumOf { it.totalTimeInForeground }
 }
 
 fun getAppUsageStats(context: Context, days: Int): Map<String, Long> {
+    val (startTime, endTime) = getPeriodStartEndInIST(days)
     val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-    val calendar = Calendar.getInstance()
-    val endTime = calendar.timeInMillis
-    calendar.add(Calendar.DAY_OF_MONTH, -days)
-    val startTime = calendar.timeInMillis
-
     val stats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime)
-
     return stats
         .filter { it.totalTimeInForeground > 0 }
         .groupBy { getAppName(context, it.packageName) }
@@ -225,4 +234,20 @@ fun formatScreenTime(milliseconds: Long): String {
     val hours = totalMinutes / 60
     val minutes = totalMinutes % 60
     return if (hours > 0) "$hours hours, $minutes minutes" else "$minutes minutes"
+}
+
+fun getPeriodStartEndInIST(days: Int): Pair<Long, Long> {
+    val tz = TimeZone.getTimeZone("Asia/Kolkata")
+    val calendar = Calendar.getInstance(tz)
+    // Set calendar to the start of the current day in IST
+    calendar.set(Calendar.HOUR_OF_DAY, 0)
+    calendar.set(Calendar.MINUTE, 0)
+    calendar.set(Calendar.SECOND, 0)
+    calendar.set(Calendar.MILLISECOND, 0)
+    // Subtract days to include the selected period (inclusive of today)
+    calendar.add(Calendar.DAY_OF_YEAR, -(days - 1))
+    val startTime = calendar.timeInMillis
+    // End time is the current moment
+    val endTime = System.currentTimeMillis()
+    return Pair(startTime, endTime)
 }
