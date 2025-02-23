@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -58,7 +59,11 @@ fun Libra(offsetX: Float, opacity: Float) {
             .offset { IntOffset(offsetX.toInt(), 0) }
             .padding(16.dp)
             .graphicsLayer(alpha = opacity)
-            .clickable { showDescription = !showDescription } // Toggle description visibility on click
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { showDescription = !showDescription }
+
     ) {
         // Draw dotted lines between nodes
         Canvas(modifier = Modifier.fillMaxSize()) {
