@@ -60,6 +60,7 @@ interface SessionManagerEntryPoint {
     fun sessionManager(): SessionManager
 }
 
+
 @Composable
 fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewModel = hiltViewModel()) {
     val context = LocalContext.current
@@ -142,12 +143,6 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
                         .weight(0.85f)
                 ) {
 
-                    items(entries) { entry ->
-                        LeaderboardRow(entry, onClick = {
-                            navController.popBackStack()
-                            navController.navigate("home/${entry.score}/true")
-                        })
-                    }
 
                     LazyColumn(
                         modifier = Modifier
@@ -159,8 +154,6 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
                             navController.popBackStack()
                             navController.navigate("home/${entry.score}/true")
                         })
-                    }
-                    
                     // Gradient fade overlay
                     Box(
                         modifier = Modifier
@@ -175,16 +168,19 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
                                     ),
                                     startY = 0f,
                                     endY = 100f
+                                    )
                                 )
                             )
-                    )
+                        }
+                    }
                 }
             }
         }
     }
 }
+
 @Composable
-private fun LeaderboardRow(entry: LeaderboardEntry, onClick: () -> Unit) {
+fun LeaderboardRow(entry: LeaderboardEntry, onClick: () -> Unit) {
     val rowModifier = Modifier
         .fillMaxWidth()
         .padding(vertical = 8.dp)
@@ -276,4 +272,3 @@ private fun LeaderboardRow(entry: LeaderboardEntry, onClick: () -> Unit) {
         }
     }
 }
-
