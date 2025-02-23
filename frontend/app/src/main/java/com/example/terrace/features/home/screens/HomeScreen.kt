@@ -50,6 +50,8 @@ import com.example.terrace.features.home.components.Libra
 import com.example.terrace.core.navigation.Screen
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.terrace.features.home.components.Cancer
+import com.example.terrace.features.home.components.Leo
 import com.example.terrace.features.home.model.HomeViewModel
 import com.example.terrace.features.stats.model.UsageViewModel
 import dagger.hilt.android.EntryPointAccessors
@@ -97,9 +99,12 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
 
     val baseOpacity = 0.05f
 
-    val littleDipperOpacity = if (score >= 10000) 1f else baseOpacity
-    val bigDipperOpacity = if (score >= 20000) 1f else baseOpacity
-    val libraOpacity = if (score >= 35000) 1f else baseOpacity
+
+    val littleDipperOpacity = if (score >= 1388) 1f else baseOpacity
+    val bigDipperOpacity = if (score >= 5555) 1f else baseOpacity
+    val libraOpacity = if (score >= 12500) 1f else baseOpacity
+    val leoOpacity = if (score >= 12500) 1f else baseOpacity
+    val cancerOpacity = if (score >= 22222) 1f else baseOpacity
     val orionOpacity = if (score >= 50000) 1f else baseOpacity
 
     var screenSize by remember { mutableStateOf(IntSize.Zero) }
@@ -296,6 +301,21 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
                 modifier = Modifier
                     .fillMaxSize()
                     .offset { IntOffset(offsetX.toInt() + -screenSize.width, 0) } // Move the entire StarryBox
+            ) {
+                Cancer(offsetX,cancerOpacity)
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .offset { IntOffset(offsetX.toInt() + -screenSize.width - 2000, 0) } // Move the entire StarryBox
+            ) {
+                Leo(offsetX,leoOpacity)
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .offset { IntOffset(offsetX.toInt() + -screenSize.width - 1000, 500) } // Move the entire StarryBox
             ) {
                 Orion(offsetX,orionOpacity)
             }
