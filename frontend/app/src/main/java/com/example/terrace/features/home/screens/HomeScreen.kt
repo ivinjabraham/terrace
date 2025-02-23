@@ -95,9 +95,9 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
     }
 
     val scoreResponse = homeViewModel.score.collectAsState().value
-    val score = if (isFriend) sscore else (scoreResponse?.score ?: 0)
+    val score = 50000
 
-    val baseOpacity = 0.05f
+    val baseOpacity = 1f
 
 
     val littleDipperOpacity = if (score >= 1388) 1f else baseOpacity
@@ -115,7 +115,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
         score < 10000 -> 30
         score < 20000 -> 80
         score < 30000 -> 110
-        score < 40000 -> 130
+        score <= 50000 -> 130
         else -> 150
     }
 
@@ -124,9 +124,11 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
         score < 10000 -> 2
         score < 20000 -> 6
         score < 30000 -> 10
-        score < 40000 -> 10
+        score < 50000 -> 10
         else -> 10
     }
+
+    Log.d("Score", "HomeScreen: ${starCount} ${clusterCount} ${scoreResponse}")
 
 
     var offsetX by remember { mutableFloatStateOf(0f) }
@@ -136,7 +138,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
 
     LaunchedEffect(Unit) {
         Log.d("HomeScreen", "Calling fetchUsageStats")
-        usageViewModel.fetchUsageStats(context, 7)
+        usageViewModel.fetchUsageStats(context, 1)
         while (true) {
             withFrameNanos {
                 offsetX += direction * 2f // Adjust speed here

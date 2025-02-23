@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,8 +62,11 @@ fun LittleDipper(offsetX: Float,opacity: Float) {
                 rotationZ = 180f,
                 transformOrigin = TransformOrigin(0.5f, 0.5f),
                 alpha = opacity
-            )
-            .clickable { showDescription = !showDescription } // Toggle description visibility on click
+            ).clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { showDescription = !showDescription }
+
     ) {
         // Draw dotted lines between nodes
         Canvas(modifier = Modifier.fillMaxSize()) {
