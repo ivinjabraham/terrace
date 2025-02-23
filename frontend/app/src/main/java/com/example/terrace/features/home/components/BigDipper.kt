@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.example.terrace.R
 
 @Composable
-fun BigDipper(offsetX: Float) {
+fun BigDipper(offsetX: Float, opacity: Float) {
     val starSize = 50.dp
     val halfStarSize = starSize / 2
 
@@ -48,7 +48,7 @@ fun BigDipper(offsetX: Float) {
             .fillMaxSize()
             .offset { IntOffset(offsetX.toInt(), 0) }
             .padding(16.dp)
-            .graphicsLayer(rotationZ = 0f,transformOrigin = TransformOrigin(0.5f, 0.5f))
+            .graphicsLayer( alpha = opacity)
     ) {
         // Draw dotted lines between nodes
         Canvas(modifier = Modifier.fillMaxSize()) {

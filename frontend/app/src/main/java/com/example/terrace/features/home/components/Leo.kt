@@ -8,14 +8,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.terrace.R
 
 @Composable
-fun Leo(offsetX: Float) {
+fun Leo(offsetX: Float, opacity: Float) {
     val starSize = 50.dp // Size of the star image
     val halfStarSize = starSize / 2 // Half the size to center lines
 
@@ -46,6 +48,7 @@ fun Leo(offsetX: Float) {
             .fillMaxSize()
             .offset { IntOffset(offsetX.toInt(), 0) }
             .padding(16.dp)
+            .graphicsLayer( alpha = opacity)
     ) {
         // Draw dotted lines between specific nodes
         Canvas(modifier = Modifier.fillMaxSize()) {

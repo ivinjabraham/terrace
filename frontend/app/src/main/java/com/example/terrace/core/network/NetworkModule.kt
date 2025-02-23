@@ -40,16 +40,7 @@ object NetworkModule {
     }
 }
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class RepositoryModule {
 
-    @Binds
-    @Singleton
-    abstract fun bindUsageRepository(
-        usageRepositoryImpl: UsageRepositoryImpl
-    ): UsageRepository
-}
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -64,3 +55,16 @@ object LeaderboardModule {
         return LeaderboardRepository(apiService, sessionManager)
     }
 }
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class RepositoryModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindUsageRepository(
+        usageRepositoryImpl: UsageRepositoryImpl
+    ): UsageRepository
+}
+
+

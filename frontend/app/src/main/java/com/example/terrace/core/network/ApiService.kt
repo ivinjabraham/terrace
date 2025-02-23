@@ -5,6 +5,7 @@ import com.example.terrace.core.network.models.LoginRequest
 import com.example.terrace.core.network.models.LoginResponse
 import com.example.terrace.core.network.models.RegisterRequest
 import com.example.terrace.core.network.models.RegisterResponse
+import com.example.terrace.core.network.models.ScoreResponse
 import com.example.terrace.core.network.models.UsageRequest
 import com.example.terrace.core.network.models.UsageResponse
 import retrofit2.http.Body
@@ -26,6 +27,11 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body request: UsageRequest
     ): Response<UsageResponse>
+
+    @GET("/api/profile")
+    suspend fun getScore(
+        @Header("Authorization") token: String,
+    ): Response<ScoreResponse>
 
     @GET("/api/leaderboard")
     suspend fun getLeaderboard(

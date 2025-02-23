@@ -49,8 +49,26 @@ import androidx.compose.ui.unit.dp
 import com.example.terrace.features.home.components.Libra
 import com.example.terrace.core.navigation.Screen
 import androidx.compose.runtime.LaunchedEffect
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.terrace.features.home.model.HomeViewModel
 import com.example.terrace.features.stats.model.UsageViewModel
 import dagger.hilt.android.EntryPointAccessors
+
+val constellationUnlocks = listOf(
+    1388 to 5000,
+    5555 to 20000,
+    12500 to 60000,
+    22222 to 150000,
+    34722 to 350000,
+    50000 to 800000
+)
+
+@Composable
+fun getOpacity(level: Int, score: Int): Float {
+    val (_, requiredScore) = constellationUnlocks.findLast { it.first <= level } ?: return 0f
+    return (score.toFloat() / requiredScore).coerceIn(0f, 1f)
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,8 +80,10 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel) {
             SessionManagerEntryPoint::class.java
         ).sessionManager()
     }
+    val homeViewModel: HomeViewModel = hiltViewModel()
 
     LaunchedEffect(Unit) {
+        homeViewModel.fetchScore()
         if (sessionManager.getAuthToken() == null) {
             navController.navigate(Screen.Login.route) {
                 popUpTo(Screen.Loader.route)
@@ -71,12 +91,37 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel) {
         }
     }
 
+    val scoreResponse = homeViewModel.score.collectAsState().value
+    val score = 5000
+
+    val baseOpacity = 0.05f
+
+    val littleDipperOpacity = if (score >= 10000) 1f else baseOpacity
+    val bigDipperOpacity = if (score >= 20000) 1f else baseOpacity
+    val libraOpacity = if (score >= 35000) 1f else baseOpacity
+    val orionOpacity = if (score >= 50000) 1f else baseOpacity
 
     var screenSize by remember { mutableStateOf(IntSize.Zero) }
     val density = LocalDensity.current
 
-    val starCount = 100
-    val clusterCount = 10
+    val starCount = when {
+        score < 5000 -> 5
+        score < 10000 -> 30
+        score < 20000 -> 80
+        score < 30000 -> 110
+        score < 40000 -> 130
+        else -> 150
+    }
+
+    val clusterCount = when {
+        score < 5000 -> 0
+        score < 10000 -> 2
+        score < 20000 -> 6
+        score < 30000 -> 10
+        score < 40000 -> 10
+        else -> 10
+    }
+
 
     var offsetX by remember { mutableFloatStateOf(0f) }
     var direction by remember { mutableStateOf(1f) }
@@ -210,7 +255,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel) {
 
                 drawRect(
                     brush = Brush.radialGradient(
-                        colors = listOf(Color(0x1D0088FF), Color(0x1E050001), Color.Black),
+                        colors = listOf(Color(0x110088FF), Color(0x1E050001), Color.Black),
                         center = Offset(
                             x = screenSize.width / 2f,
                             y = 0f
@@ -224,9 +269,10 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .offset { IntOffset(offsetX.toInt() + screenSize.width * 2 - 300, -1000) } // Move the entire StarryBox
+                    .offset { IntOffset(offsetX.toInt() + screenSize.width * 2 - 300, -1000) }
+                    // Move the entire StarryBox
             ) {
-                LittleDipper(offsetX)
+                LittleDipper(offsetX,littleDipperOpacity)
             }
 
             Box(
@@ -235,21 +281,21 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel) {
                     .offset { IntOffset(offsetX.toInt() + screenSize.width * 2 - 1400, 500) }
 
             ) {
-                BigDipper(offsetX)
+                BigDipper(offsetX,bigDipperOpacity)
             }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .offset { IntOffset(offsetX.toInt() + 0, 0) } // Move the entire StarryBox
             ) {
-                Libra(offsetX)
+                Libra(offsetX,libraOpacity)
             }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .offset { IntOffset(offsetX.toInt() + -screenSize.width, 0) } // Move the entire StarryBox
             ) {
-                Orion(offsetX)
+                Orion(offsetX,orionOpacity)
             }
 
 
