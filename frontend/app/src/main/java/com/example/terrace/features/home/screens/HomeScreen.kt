@@ -208,6 +208,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
                 .fillMaxSize()
                 .background(Color.Transparent)
                 .statusBarsPadding()
+                .navigationBarsPadding()
                 .zIndex(1f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

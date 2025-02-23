@@ -85,7 +85,7 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF111121))
+            .background(Color(0xFF131826))
     ) {
         if (isLoading) {
             // Show loading indicator
@@ -120,7 +120,7 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(0xFF111121))
+                    .background(Color(0xFF09112C))
             ) {
                 Text(
                     text = "Leaderboard",
@@ -170,8 +170,8 @@ fun LeaderboardScreen(navController: NavController, viewModel: LeaderboardViewMo
                             .background(
                                 Brush.verticalGradient(
                                     colors = listOf(
-                                        Color(0xFF111121),
-                                        Color(0xFF111121).copy(alpha = 0f)
+                                        Color(0xFF09112C),
+                                        Color(0x6109112C).copy(alpha = 0f)
                                     ),
                                     startY = 0f,
                                     endY = 100f
@@ -196,7 +196,7 @@ private fun LeaderboardRow(entry: LeaderboardEntry, onClick: () -> Unit) {
                 .clip(RoundedCornerShape(16.dp))
                 .background(
                     brush = Brush.horizontalGradient(
-                        colors = listOf(Color(0xFF7B68EE), Color(0xFF483D8B))
+                        colors = listOf(Color(0xFF3C5596), Color(0xFF303E72))
                     )
                 )
                 .padding(vertical = 20.dp, horizontal = 16.dp)
@@ -233,7 +233,7 @@ private fun LeaderboardRow(entry: LeaderboardEntry, onClick: () -> Unit) {
     } else {
         Card(
             shape = RoundedCornerShape(16.dp),
-            backgroundColor = Color(0xFF343459),
+            backgroundColor = Color(0xFF0F1A38),
             elevation = 4.dp,
             modifier = rowModifier
         ) {

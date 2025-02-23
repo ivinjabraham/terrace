@@ -122,7 +122,7 @@ fun AppUsagePieChart(context: Context, appUsageStats: Map<String, Long>) {
 
     val totalUsage = sortedEntries.sumOf { it.value }
     val sliceColors = listOf(
-        Color(0xFF4285F4), // Blue
+        Color(0xFF5442F4), // Blue
         Color(0xFFDB4437), // Red
         Color(0xFFF4B400), // Yellow
         Color(0xFF0F9D58), // Green
