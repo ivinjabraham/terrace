@@ -53,6 +53,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		"hashedpass": hashedPass,
 		"created_at": time.Now(),
 		"score":      100,
+		"screentime": 0,
 	})
 
 	if mongo.IsDuplicateKeyError(err) {

@@ -32,6 +32,7 @@ func main() {
 	protectedMux := http.NewServeMux()
 	protectedMux.HandleFunc("GET /api/users", authHandler.GetUsers)
 	protectedMux.HandleFunc("GET /api/profile", authHandler.Profile)
+	protectedMux.HandleFunc("PUT /api/screentime", authHandler.UpdateScreenTime)
 
 	mux.Handle("/", middleware.JWTMiddleware(cfg.JWTSecret)(protectedMux))
 
