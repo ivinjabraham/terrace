@@ -97,7 +97,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
     val scoreResponse = homeViewModel.score.collectAsState().value
     val score = if (isFriend) sscore else (scoreResponse?.score ?: 0)
 
-    val baseOpacity = 0.05f
+    val baseOpacity = 0.12f
 
 
     val littleDipperOpacity = if (score >= 1388) 1f else baseOpacity
@@ -105,7 +105,7 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
     val libraOpacity = if (score >= 12500) 1f else baseOpacity
     val leoOpacity = if (score >= 12500) 1f else baseOpacity
     val cancerOpacity = if (score >= 22222) 1f else baseOpacity
-    val orionOpacity = if (score >= 50000) 1f else baseOpacity
+    val orionOpacity = if (score >= 35000) 1f else baseOpacity
 
     var screenSize by remember { mutableStateOf(IntSize.Zero) }
     val density = LocalDensity.current
