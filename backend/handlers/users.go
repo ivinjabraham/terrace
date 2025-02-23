@@ -24,8 +24,9 @@ func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	Users := make([]models.GetUser, len(users))
 	for i, u := range users {
 		Users[i] = models.GetUser{
-			Username: u.Username,
-			Score:    u.Score,
+			Username:   u.Username,
+			Score:      u.Score,
+			ScreenTime: u.ScreenTime,
 		}
 	}
 

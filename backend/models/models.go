@@ -12,9 +12,11 @@ type User struct {
 	Username   string             `bson:"username"`
 	HashedPass string             `bson:"hashedpass"`
 	Score      int                `bson:"score"`
+	ScreenTime int64              `bson:"screentime"` // in milliseconds
 }
 
 type GetUser struct {
-	Username string `json:"username"`
-	Score    int    `json:"score"`
+	Username   string `json:"username"`
+	Score      int    `json:"score"`
+	ScreenTime int64  `json:"screentime"`
 }
