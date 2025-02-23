@@ -1,6 +1,5 @@
 package com.example.terrace.core.network
 
-
 import com.example.terrace.core.network.repository.UsageRepository
 import com.example.terrace.core.network.repository.UsageRepositoryImpl
 import dagger.Binds
@@ -15,7 +14,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
-
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
@@ -35,6 +33,11 @@ object NetworkModule {
         return retrofit.create(ApiService::class.java)
     }
 
+    @Provides
+    @Singleton
+    fun provideSessionManager(@ApplicationContext context: Context): SessionManager {
+        return SessionManager(context)
+    }
 }
 
 @Module
@@ -48,12 +51,9 @@ abstract class RepositoryModule {
     ): UsageRepository
 }
 
-
-    @Provides
-    @Singleton
-    fun provideSessionManager(@ApplicationContext context: Context): SessionManager {
-        return SessionManager(context)
-    }
+@Module
+@InstallIn(SingletonComponent::class)
+object LeaderboardModule {
 
     @Provides
     @Singleton
@@ -64,4 +64,3 @@ abstract class RepositoryModule {
         return LeaderboardRepository(apiService, sessionManager)
     }
 }
-

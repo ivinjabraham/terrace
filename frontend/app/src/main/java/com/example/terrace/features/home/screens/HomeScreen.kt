@@ -1,7 +1,6 @@
 package com.example.terrace.features.home.screens
 
 import StarData
-import android.content.Context
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -41,8 +40,6 @@ import com.example.terrace.features.global.layout.screen.LayoutComponent
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.border
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 
@@ -50,18 +47,14 @@ import androidx.compose.ui.unit.dp
 
 
 import com.example.terrace.features.home.components.Libra
-import com.example.terrace.core.auth.SessionManager
 import com.example.terrace.core.navigation.Screen
 import androidx.compose.runtime.LaunchedEffect
-import androidx.hilt.navigation.compose.hiltViewModel
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
+import com.example.terrace.features.stats.model.UsageViewModel
 import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel) {
     val context = LocalContext.current
     val sessionManager = remember {
         EntryPointAccessors.fromApplication(

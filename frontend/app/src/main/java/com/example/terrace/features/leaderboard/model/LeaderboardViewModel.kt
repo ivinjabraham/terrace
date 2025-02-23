@@ -1,4 +1,4 @@
-package com.example.terrace.features.model
+package com.example.terrace.features.leaderboard.model
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
