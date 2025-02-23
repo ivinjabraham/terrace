@@ -3,7 +3,12 @@ package com.example.terrace.features.home.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -15,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.terrace.R
+import com.example.terrace.features.global.layout.screen.GlowingCommentBox
 
 @Composable
 fun BigDipper(offsetX: Float, opacity: Float) {
@@ -43,12 +49,16 @@ fun BigDipper(offsetX: Float, opacity: Float) {
         6 to 3// Mizar to Alkaid
     )
 
+    val description = "A bright, spoon-shaped asterism in Ursa Major, often used for navigation, pointing to Polaris, the North Star."
+    var showDescription by remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .offset { IntOffset(offsetX.toInt(), 0) }
             .padding(16.dp)
             .graphicsLayer( alpha = opacity)
+            .clickable { showDescription = !showDescription } // Toggle description visibility on click
     ) {
         // Draw dotted lines between nodes
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -81,5 +91,8 @@ fun BigDipper(offsetX: Float, opacity: Float) {
                     .absoluteOffset(x = x, y = y)
             )
         }
+    }
+    if (showDescription) {
+        GlowingCommentBox(title = "Big Dipper", description = description)
     }
 }
