@@ -95,9 +95,9 @@ fun HomeScreen(navController: NavController, usageViewModel: UsageViewModel, isF
     }
 
     val scoreResponse = homeViewModel.score.collectAsState().value
-    val score = 50000
+    val score = if (isFriend) sscore else (scoreResponse?.score ?: 0)
 
-    val baseOpacity = 1f
+    val baseOpacity = 0.05f
 
 
     val littleDipperOpacity = if (score >= 1388) 1f else baseOpacity
